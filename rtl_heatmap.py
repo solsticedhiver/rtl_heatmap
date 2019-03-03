@@ -41,13 +41,28 @@ def read_data(f_name, quiet):
     f.close()
     return lines
 
-def sort_and_clean(L):
+def sort_and_clean(L, start=None, end=None):
     indexes = {}
-    for i,l in enumerate(L):
-        fields = [f.strip() for f in l.split(',')]
-        datetimefreq = '%sT%sF%s' % (fields[0],fields[1], fields[2])
-        indexes[datetimefreq] = i
-    return [L[indexes[i]] for i in sorted(indexes.keys())]
+    if start or end:
+        if start and end is None:
+            flambda = lambda x: start < x
+        elif start is None and end:
+            flambda = lambda x: x < end
+        elif start and end:
+            flambda = lambda x: start < x < end
+
+        for i,l in enumerate(L):
+            fields = [f.strip() for f in l.split(',')]
+            datetimefreq = '%sT%sF%s' % (fields[0], fields[1], fields[2])
+            indexes[datetimefreq] = i
+        si = filter(flambda, sorted(indexes.keys()))
+        return [L[indexes[i]] for i in si]
+    else:
+        for i,l in enumerate(L):
+            fields = [f.strip() for f in l.split(',')]
+            datetimefreq = '%sT%sF%s' % (fields[0], fields[1], fields[2])
+            indexes[datetimefreq] = i
+        return [L[indexes[i]] for i in sorted(indexes.keys())]
 
 def is_inside(b1, b2):
     return b1.xmax <= b2.xmax and b1.xmin >= b2.xmin and b1.ymax <= b2.ymax and b1.ymin >= b2.ymin
@@ -162,8 +177,7 @@ def plot_heatmap(lines, f_name, args):
     zmax = -100
     datetimes = []
     print_quiet(':: processing data', args.quiet)
-    if args.start or args.end:
-        print '--start/--end is NOT IMPLEMENTED yet'
+
     for i,line in enumerate(lines):
         fields = [f.strip() for f in line.split(',')]
         if i == 0:
@@ -250,6 +264,8 @@ def plot_heatmap(lines, f_name, args):
             tymajor = 60
         elif length_min >= 60*2:
             tymajor = 30
+        else:
+            tymajor = 15
     if tymajor >= 60*2:
         tyminor = tymajor/4
     elif tymajor >= 60:
@@ -317,8 +333,8 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--output', help='Explicit name for the output file')
     parser.add_argument('-q', '--quiet', action='store_true', default=False, help='no verbose output')
     parser.add_argument('-s', '--show', action='store_true', default=False, help='Show pyplot window instead of outputting an image')
-    parser.add_argument('--start', help='Start time to use; everything before that is ignored')
-    parser.add_argument('--end', help='End time to use; everything after that is ignored')
+    parser.add_argument('--start', help='Start time to use; everything before that is ignored; expected format YYY-mm-ddTHH[:MM[:SS]]')
+    parser.add_argument('--end', help='End time to use; everything after that is ignored; expected format YYY-mm-ddTHH[:MM[:SS]]')
     parser.add_argument('--sort', action='store_true', default=False, help='Sort csv file data')
     parser.add_argument('--yticks', help='Define tick in the time axis, xxx[h|m]')
     parser.add_argument('--xlines', action='store_true', default=False, help='Show lines matching major xtick labels')
@@ -339,14 +355,17 @@ if __name__ == '__main__':
     if not os.path.isfile(args.input):
         print_error('Error: there is no such file as %s' % args.input)
         sys.exit(-1)
+
     if args.output and args.format:
         ext = args.output[args.output.rindex('.')+1:]
         if ext.lower() != args.format.lower():
             print_error('Error: conflicting format and extension')
             sys.exit(-1)
+
     if (args.dbmin and not args.dbmax) or (args.dbmax and not args.dbmin):
         print_error('Error: please specify both --dbmin and --dbmax')
         sys.exit(-1)
+
     if args.yticks:
         if args.yticks.endswith('h'):
             args.yticks = int(args.yticks[:-1])*60
@@ -356,8 +375,10 @@ if __name__ == '__main__':
             args.yticks = int(args.yticks)
 
     lines = read_data(args.input, args.quiet)
-    if args.sort:
-        lines = sort_and_clean(lines)
+    if args.sort or args.start or args.end:
+        # force also a sort if using either --start or --end
+        lines = sort_and_clean(lines, start=args.start, end=args.end)
+
     if not args.output:
         output = args.input
         indx = output.rindex('.')
@@ -376,4 +397,5 @@ if __name__ == '__main__':
     if os.path.isfile(output) and not args.force:
         print_error('Abort: file %s already exits. Use --force to overwrite.' % output)
         sys.exit(-1)
+
     plot_heatmap(lines, output, args)
