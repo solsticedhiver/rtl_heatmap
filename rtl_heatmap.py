@@ -328,7 +328,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Yet another heatmap generator for rtl_power .csv file')
     parser.add_argument('--dbmin', help='Minimum value to consider for colormap normalization')
     parser.add_argument('--dbmax', help='Maximum value to consider for colormap normalization')
-    parser.add_argument('-c', '--colormap', default='charolastra', help='Specify the colormap to use (all  to get a list of available colormaps)')
+    parser.add_argument('-c', '--colormap', default='charolastra', help='Specify the colormap to use (use "list" to get a list of available colormaps)')
     parser.add_argument('-f', '--format', help='Format of the output image file')
     parser.add_argument('-i', '--input', help='Input csv filename')
     parser.add_argument('--inside', action='store_true', default=False, help='Draw tick label inside plot')
@@ -346,7 +346,7 @@ if __name__ == '__main__':
     parser.add_argument('--ylines', action='store_true', default=False, help='Show lines matching major ytick labels')
     args = parser.parse_args()
 
-    if args.colormap == 'all':
+    if args.colormap == 'list':
         print 'Available colormaps are:'
         for k,v in COLORMAPS.items():
             print '  - %s:' % k

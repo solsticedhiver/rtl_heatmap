@@ -18,7 +18,7 @@ the data gathered by rtl_power
       --dbmin DBMIN         Minimum value to consider for colormap normalization
       --dbmax DBMAX         Maximum value to consider for colormap normalization
       -c COLORMAP, --colormap COLORMAP
-                            Specify the colormap to use (all to get a list of
+                            Specify the colormap to use (use "list" to get a list of
                             available colormaps)
       -f FORMAT, --format FORMAT
                             Format of the output image file
