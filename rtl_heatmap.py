@@ -2,7 +2,6 @@
 # coding: utf-8
 import sys
 import gzip
-from datetime import datetime, timedelta
 import time
 import math
 import os.path
@@ -10,7 +9,6 @@ import argparse
 try:
     import matplotlib.pyplot as plt
     import matplotlib.ticker as ticker
-    from matplotlib.transforms import ScaledTranslation
     from matplotlib.colors import ListedColormap, hsv_to_rgb
 except ImportError as i:
     print 'Error: you need **matplotlib** installed for this to run.'
