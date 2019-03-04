@@ -119,26 +119,18 @@ def print_with_columns(L, columns, prefix=''):
     for j in range(len(lines)):
         print prefix+''.join(lines[j])
 
-def estimate_timelength(datetimes, span):
-    # try to guess how much lines have been sampled for given span time
-    start = datetime.strptime(datetimes[0], '%Y-%m-%dT%H:%M:%S')
-    current = datetime.strptime(datetimes[0], '%Y-%m-%dT%H:%M:%S')
-    index = 0
-    while current < start+timedelta(seconds=span):
-        index += 1
-        current = datetime.strptime(datetimes[index], '%Y-%m-%dT%H:%M:%S')
-    return index-1
-
 def find_time_index(datetimes, multiple):
     # find index that matches the multiple in minute
     indexes = []
     done = []
-    for i, dt in enumerate(datetimes):
-        current = datetime.strptime(dt, '%Y-%m-%dT%H:%M:%S')
-        if current.minute % multiple == 0:
-            if dt[:17] not in done:
-                done.append(dt[:17])
-                indexes.append(i)
+    ts = [time.mktime(time.strptime(dt[:19], '%Y-%m-%dT%H:%M:%S')) for dt in datetimes]
+    current = min(ts)
+    while current < max(ts):
+        diff = [(abs(current-ts[i]), i) for i in range(len(ts))]
+        tmin = min([x for x,_ in diff])
+        indx = [i for x,i in diff if x == tmin][0]
+        indexes.append(indx)
+        current += multiple*60
     return indexes
 
 def find_freq_index(xmin, xmax, step, modulo):
@@ -149,12 +141,13 @@ def find_freq_index(xmin, xmax, step, modulo):
         f = int(round(f+step))
         freqs.append(f)
     indexes = []
-    done  = []
-    for i,f in enumerate(freqs):
-        fm = f / modulo
-        if fm not in done and f % modulo < modulo/10:
-            indexes.append(i)
-            done.append(fm)
+    fc = xmin
+    while fc < xmax:
+        diff = [(abs(fc-freqs[i]), i) for i in range(count+1)]
+        fmin = min([x for x,_ in diff])
+        indx = [i for x,i in diff if x == fmin][0]
+        indexes.append(indx)
+        fc += modulo
     return indexes
 
 def remove_ticklabel(ax, axis, bbox):
