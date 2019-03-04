@@ -64,8 +64,13 @@ def sort_and_clean(L, start=None, end=None):
             indexes[datetimefreq] = i
         return [L[indexes[i]] for i in sorted(indexes.keys())]
 
-def is_inside(b1, b2):
-    return b1.xmax <= b2.xmax and b1.xmin >= b2.xmin and b1.ymax <= b2.ymax and b1.ymin >= b2.ymin
+def is_inside(b1, b2, dir):
+    if dir == 'x':
+        return b1.x0 <= b2.xmax and b1.x0 >= b2.xmin
+    elif dir == 'y':
+        return b1.y1 <= b2.ymax and b1.y1 >= b2.ymin
+    else:
+        return None
 
 def charolastra_palette():
     def loop(n):
@@ -154,7 +159,7 @@ def remove_ticklabel(ax, axis, bbox):
     labels = getattr(ax, 'get_%sticklabels' % axis)()
     toberemoved = []
     for i,label in enumerate(labels):
-        if not is_inside(label.get_window_extent(), bbox):
+        if not is_inside(label.get_window_extent(), bbox, axis):
             toberemoved.append(i)
     ticks = list(getattr(ax, 'get_%sticks' % axis)())
     for i in reversed(toberemoved):
