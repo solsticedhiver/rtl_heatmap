@@ -66,9 +66,9 @@ def sort_and_clean(L, start=None, end=None):
 
 def is_inside(b1, b2, dir):
     if dir == 'x':
-        return b1.x0 <= b2.xmax and b1.x0 >= b2.xmin
+        return b1.x1 <= b2.xmax and b1.x0 >= b2.xmin
     elif dir == 'y':
-        return b1.y1 <= b2.ymax and b1.y1 >= b2.ymin
+        return b1.y1 <= b2.ymax and b1.y0 >= b2.ymin
     else:
         raise ValueError
 
