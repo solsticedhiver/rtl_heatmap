@@ -43,7 +43,7 @@ the data gathered by rtl_power. All *matplotlib* colormaps are available and als
 
 
 # Examples
-Example of a generated heatmap, using defaults, 860MHz to 870MHz for a day:
+Example of a generated heatmap, using defaults, 863MHz to 870MHz for a day:
 
 ![SRD860](SRD860.png)
 
@@ -59,6 +59,17 @@ Here, the data set has value from -27.81dB to -3.23dB.
 - With no normalization, the colormap auto-adjust to the data set range.
 - With normalization, you specify the full range that the colormap should span, even the value not present in the data set.
 
+## Truncation
+You can "truncate" your data set by using `--start/--end` to specify the start and/or the end time to be used.
+
+You can also use `--dbmin/--dbmax` switches to "truncate" the data set for values outside a given range.
+For example, if the values span -27.81dB to -3.23dB and you specify `--dbmin -20` and `--dbmax -3` then values lesser than -20 will be plotted as the min value i.e. -20 and values greate than -3 will be plotted as the max value i.e -3.
+
 |No normalization|Normalization by specifying `--dbmin -40 --dbmax 5`|
 |---|---|
 |![No normalisation](LPD433.png)|![normalization](LPD433dbset.png)|
+
+
+|Truncated data set from 08:00 to 09:00|Truncation specified with `--dbmin -20 --dbmax -3`|
+|---|---|
+|![Truncation](LPD433hour.png)|![Truncation](LPD433trunc.png)|
