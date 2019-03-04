@@ -227,15 +227,14 @@ def plot_heatmap(lines, f_name, args):
             dt = None
         return dt
 
-    colormap = args.colormap
-    if colormap == 'charolastra':
-        colormap = ListedColormap(charolastra_palette())
+    if args.colormap == 'charolastra':
+        args.colormap = ListedColormap(charolastra_palette())
 
     if args.dbmin is not None:
         print_quiet('Normalizing data set to use %ddb to %ddb range' % (args.dbmin, args.dbmax), args.quiet)
-        ax.imshow(data, cmap=colormap, aspect='equal', vmin=args.dbmin, vmax=args.dbmax)
+        ax.imshow(data, cmap=args.colormap, aspect='equal', vmin=args.dbmin, vmax=args.dbmax)
     else:
-        ax.imshow(data, cmap=colormap, aspect='equal')
+        ax.imshow(data, cmap=args.colormap, aspect='equal')
 
     # show lines matching major ticks
     if args.xlines:
