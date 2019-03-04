@@ -211,10 +211,6 @@ def plot_heatmap(lines, f_name, args):
     print_quiet(':: rendering', args.quiet)
     fig, ax = plt.subplots()
 
-    def showfreq(tick, pos):
-        #return '%gMHz' % ((xmin+float(tick)*float(step))/(1000*1000),)
-        return '%dMHz' % int(round(((xmin+float(tick)*float(step))/(1000*1000))))
-
     start = time.mktime(time.strptime(datetimes[0], '%Y-%m-%dT%H:%M:%S'))
     end = time.mktime(time.strptime(datetimes[-1], '%Y-%m-%dT%H:%M:%S'))
     si = 11
@@ -227,21 +223,6 @@ def plot_heatmap(lines, f_name, args):
             dt = None
         return dt
 
-    if args.colormap == 'charolastra':
-        args.colormap = ListedColormap(charolastra_palette())
-
-    if args.dbmin is not None:
-        print_quiet('Normalizing data set to use %ddb to %ddb range' % (args.dbmin, args.dbmax), args.quiet)
-        ax.imshow(data, cmap=args.colormap, aspect='equal', vmin=args.dbmin, vmax=args.dbmax)
-    else:
-        ax.imshow(data, cmap=args.colormap, aspect='equal')
-
-    # show lines matching major ticks
-    if args.xlines:
-        ax.grid(True, axis='x', which='major', color='white', linewidth=0.5, linestyle='-.')
-    if args.ylines:
-        ax.grid(True, axis='y', which='major', color='white', linewidth=0.5, linestyle='-.')
-
     if xmax-xmin > 1000*MHz:
         txmajor = 100*MHz
     elif xmax-xmin > 100*MHz:
@@ -251,7 +232,7 @@ def plot_heatmap(lines, f_name, args):
     elif xmax-xmin > 1*MHz:
         txmajor = MHz
     else:
-        txmajor = 10*kHz
+        txmajor = 100*kHz
     txminor = txmajor/10
 
     if args.yticks is not None:
@@ -274,6 +255,28 @@ def plot_heatmap(lines, f_name, args):
         tyminor = 10
     elif tymajor >= 15:
         tyminor = 5
+
+    if txmajor < MHz:
+        def showfreq(tick, pos):
+            return '%.1fMHz' % ((xmin+float(tick)*float(step))/(1000*1000),)
+    else:
+        def showfreq(tick, pos):
+            return '%dMHz' % int(round(((xmin+float(tick)*float(step))/(1000*1000))))
+
+    if args.colormap == 'charolastra':
+        args.colormap = ListedColormap(charolastra_palette())
+
+    if args.dbmin is not None:
+        print_quiet('Normalizing data set to use %ddb to %ddb range' % (args.dbmin, args.dbmax), args.quiet)
+        ax.imshow(data, cmap=args.colormap, aspect='equal', vmin=args.dbmin, vmax=args.dbmax)
+    else:
+        ax.imshow(data, cmap=args.colormap, aspect='equal')
+
+    # show lines matching major ticks
+    if args.xlines:
+        ax.grid(True, axis='x', which='major', color='white', linewidth=0.5, linestyle='-.')
+    if args.ylines:
+        ax.grid(True, axis='y', which='major', color='white', linewidth=0.5, linestyle='-.')
 
     # add the title
     if args.title:
