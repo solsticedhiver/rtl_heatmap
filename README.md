@@ -2,7 +2,7 @@
 Yet another heatmap generator for *rtl_power* **csv** file
 
 Instead of reinventing the wheel again, let's use *matplotlib* graphic capability to plot
-the data gathered by rtl_power
+the data gathered by rtl_power. All *matplotlib* colormaps are available and also the infamous 'charolastra' one (twilight+ colormaps only in matplotlib 3.x and above).
 
     $ ./rtl_heatmap.py -h
     usage: rtl_heatmap.py [-h] [--dbmin DBMIN] [--dbmax DBMAX] [-c COLORMAP]
