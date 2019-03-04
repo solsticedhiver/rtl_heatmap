@@ -203,6 +203,11 @@ def plot_heatmap(lines, f_name, args):
         freq = fields[3]
     data.append(floatify(tmp)) # last line
     datetimes.append(current)
+
+    if args.dbmin is not None and (args.dbmin > zmax or args.dbmax < zmin):
+        print_error('Error: dbmin should be less than max value and/or dbmax should be greater than min value')
+        sys.exit(-1)
+
     print_quiet('Starting at %s and ending at %s\n  from %sHz to %sHz with values from %sdB to %sdB' % (datetimes[0], datetimes[-1], xmin, xmax, zmin, zmax), args.quiet)
 
     print_quiet(':: rendering', args.quiet)
@@ -231,7 +236,8 @@ def plot_heatmap(lines, f_name, args):
     if colormap == 'charolastra':
         colormap = ListedColormap(charolastra_palette())
 
-    if args.dbmin and args.dbmax:
+    if args.dbmin is not None:
+        print_quiet('Normalizing data set to use %ddb to %ddb range' % (args.dbmin, args.dbmax), args.quiet)
         ax.imshow(data, cmap=colormap, aspect='equal', vmin=args.dbmin, vmax=args.dbmax)
     else:
         ax.imshow(data, cmap=colormap, aspect='equal')
@@ -254,7 +260,7 @@ def plot_heatmap(lines, f_name, args):
         txmajor = 10*kHz
     txminor = txmajor/10
 
-    if args.yticks:
+    if args.yticks is not None:
         tymajor = args.yticks
     else:
         length_min = (end-start)/60
@@ -328,8 +334,8 @@ def plot_heatmap(lines, f_name, args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Yet another heatmap generator for rtl_power .csv file')
-    parser.add_argument('--dbmin', help='Minimum value to consider for colormap normalization')
-    parser.add_argument('--dbmax', help='Maximum value to consider for colormap normalization')
+    parser.add_argument('--dbmin', type=float, help='Minimum value to consider for colormap normalization')
+    parser.add_argument('--dbmax', type=float, help='Maximum value to consider for colormap normalization')
     parser.add_argument('-c', '--colormap', default='charolastra', help='Specify the colormap to use (use "list" to get a list of available colormaps)')
     parser.add_argument('-f', '--format', help='Format of the output image file')
     parser.add_argument('-i', '--input', help='Input csv filename')
@@ -376,11 +382,11 @@ GPL licensed''' % VERSION
             print_error('Error: conflicting format and extension')
             sys.exit(-1)
 
-    if (args.dbmin and not args.dbmax) or (args.dbmax and not args.dbmin):
+    if (args.dbmin is not None and args.dbmax is None) or (args.dbmax is not None and args.dbmin is None):
         print_error('Error: please specify both --dbmin and --dbmax')
         sys.exit(-1)
 
-    if args.yticks:
+    if args.yticks is not None:
         if args.yticks.endswith('h'):
             args.yticks = int(args.yticks[:-1])*60
         elif args.yticks.endswith('m'):
