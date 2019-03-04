@@ -70,7 +70,7 @@ def is_inside(b1, b2, dir):
     elif dir == 'y':
         return b1.y1 <= b2.ymax and b1.y1 >= b2.ymin
     else:
-        return None
+        raise ValueError
 
 def charolastra_palette():
     def loop(n):
