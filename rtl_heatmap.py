@@ -275,6 +275,12 @@ def plot_heatmap(lines, f_name, args):
     elif tymajor >= 15:
         tyminor = 5
 
+    # add the title
+    if args.title:
+        if args.inside:
+            ax.text(0.5, 0.9, args.title, fontsize='x-large', color='white', horizontalalignment='center', verticalalignment='bottom', transform=ax.transAxes)
+        else:
+            ax.text(0.5, 1.01, args.title, fontsize='x-large', horizontalalignment='center', verticalalignment='bottom', transform=ax.transAxes)
     # redefine tick positions
     fi = find_freq_index(xmin, xmax, step, txminor)
     ax.set_xticks(fi[::10])
@@ -336,6 +342,7 @@ if __name__ == '__main__':
     parser.add_argument('--start', help='Start time to use; everything before that is ignored; expected format YYY-mm-ddTHH[:MM[:SS]]')
     parser.add_argument('--end', help='End time to use; everything after that is ignored; expected format YYY-mm-ddTHH[:MM[:SS]]')
     parser.add_argument('--sort', action='store_true', default=False, help='Sort csv file data')
+    parser.add_argument('--title', help='Add a title to the plot')
     parser.add_argument('--yticks', help='Define tick in the time axis, xxx[h|m]')
     parser.add_argument('--xlines', action='store_true', default=False, help='Show lines matching major xtick labels')
     parser.add_argument('--ylines', action='store_true', default=False, help='Show lines matching major ytick labels')
