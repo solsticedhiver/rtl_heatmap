@@ -174,6 +174,7 @@ def plot_heatmap(lines, f_name, args):
     zmin = 100
     zmax = -100
     datetimes = []
+    current = ''
     print_quiet(':: processing data', args.quiet)
 
     for i,line in enumerate(lines):
@@ -199,6 +200,10 @@ def plot_heatmap(lines, f_name, args):
             datetimes.append(current)
         prev = current
         freq = fields[3]
+    if len(data) == 0 and len(tmp) == 0:
+        print_error('Error: we ended up with an empty data set !?')
+        sys.exit(-1)
+
     data.append(floatify(tmp)) # last line
     datetimes.append(current)
 
