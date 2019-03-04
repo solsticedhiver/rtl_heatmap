@@ -230,9 +230,6 @@ def plot_heatmap(lines, f_name, args):
         return dt
 
     colormap = args.colormap
-    if colormap != 'charolastra' and colormap not in plt.colormaps():
-        print_error('Error: colormap "%s" not found; using charolastra palette' % colormap)
-        colormap = 'charolastra'
     if colormap == 'charolastra':
         colormap = ListedColormap(charolastra_palette())
 
@@ -384,6 +381,10 @@ GPL licensed''' % VERSION
 
     if (args.dbmin is not None and args.dbmax is None) or (args.dbmax is not None and args.dbmin is None):
         print_error('Error: please specify both --dbmin and --dbmax')
+        sys.exit(-1)
+
+    if args.colormap != 'charolastra' and args.colormap not in plt.colormaps():
+        print_error('Error: colormap "%s" not found. Use "list" to see the available colormaps' % args.colormap)
         sys.exit(-1)
 
     if args.yticks is not None:
