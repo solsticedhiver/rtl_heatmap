@@ -374,9 +374,9 @@ GPL licensed''' % VERSION
         sys.exit(-1)
 
     if args.output and args.format:
-        ext = args.output[args.output.rindex('.')+1:]
-        if ext.lower() != args.format.lower():
-            print_error('Error: conflicting format and extension')
+        ext = (args.output[args.output.rindex('.')+1:]).lower()
+        if ext != args.format.lower():
+            print_error('Error: conflicting format and extension. Found "%s" extension and "%s" format' % (ext, args.format.lower()))
             sys.exit(-1)
 
     if (args.dbmin is not None and args.dbmax is None) or (args.dbmax is not None and args.dbmin is None):
