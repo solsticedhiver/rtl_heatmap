@@ -1,4 +1,5 @@
 #!/usr/bin/env python2
+# coding: utf-8
 import sys
 import gzip
 from datetime import datetime, timedelta
@@ -15,6 +16,7 @@ except ImportError as i:
     print 'Error: you need **matplotlib** installed for this to run.'
     sys.exit(-1)
 
+VERSION = '0.1'
 COLORMAPS = {
     'perceptual': ['viridis', 'plasma', 'inferno', 'magma', 'cividis', 'charolastra*'],
     'sequential': ['binary', 'gist_yarg', 'gist_gray', 'gray', 'bone', 'pink', 'spring', 'summer', 'autumn', 'winter', 'cool', 'Wistia', 'hot', 'afmhot', 'gist_heat', 'copper'],
@@ -341,10 +343,17 @@ if __name__ == '__main__':
     parser.add_argument('--end', help='End time to use; everything after that is ignored; expected format YYY-mm-ddTHH[:MM[:SS]]')
     parser.add_argument('--sort', action='store_true', default=False, help='Sort csv file data')
     parser.add_argument('--title', help='Add a title to the plot')
+    parser.add_argument('-v', '--version', action='store_true', help='Print version and exit')
     parser.add_argument('--yticks', help='Define tick in the time axis, xxx[h|m]')
     parser.add_argument('--xlines', action='store_true', default=False, help='Show lines matching major xtick labels')
     parser.add_argument('--ylines', action='store_true', default=False, help='Show lines matching major ytick labels')
     args = parser.parse_args()
+
+    if args.version:
+        print '''rtl_heatmap %s
+Copyright ©2019 solstice d'Hiver
+GPL licensed''' % VERSION
+        sys.exit(1)
 
     if args.colormap == 'list':
         print 'Available colormaps are:'
