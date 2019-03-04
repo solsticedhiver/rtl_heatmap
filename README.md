@@ -8,8 +8,8 @@ the data gathered by rtl_power
     usage: rtl_heatmap.py [-h] [--dbmin DBMIN] [--dbmax DBMAX] [-c COLORMAP]
                           [-f FORMAT] [-i INPUT] [--inside] [--force]
                           [--no-margin] [-o OUTPUT] [-q] [-s] [--start START]
-                          [--end END] [--sort] [--yticks YTICKS] [--xlines]
-                          [--ylines]
+                          [--end END] [--sort] [--title TITLE] [--yticks YTICKS]
+                          [--xlines] [--ylines]
 
     Yet another heatmap generator for rtl_power .csv file
 
@@ -31,14 +31,20 @@ the data gathered by rtl_power
                             Explicit name for the output file
       -q, --quiet           no verbose output
       -s, --show            Show pyplot window instead of outputting an image
-      --start START         Start time to use; everything before that is ignored
-      --end END             End time to use; everything after that is ignored
+      --start START         Start time to use; everything before that is ignored;
+                            expected format YYY-mm-ddTHH[:MM[:SS]]
+      --end END             End time to use; everything after that is ignored;
+                            expected format YYY-mm-ddTHH[:MM[:SS]]
       --sort                Sort csv file data
+      --title TITLE         Add a title to the plot
       --yticks YTICKS       Define tick in the time axis, xxx[h|m]
       --xlines              Show lines matching major xtick labels
       --ylines              Show lines matching major ytick labels
 
 Example of a generated heatmap, using defaults:
 
-![SRD860]
-(SRD860.png)
+![SRD860](SRD860.png)
+
+Using `-c viridis --no-margin --inside --ylines --yticks 1h --title "Full spectrum scan 25MHz-1500MHz/8h"`
+
+![Full spectrum scan 25MHz-1500MHz](fullscan.png)
