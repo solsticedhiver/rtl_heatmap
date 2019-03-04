@@ -278,9 +278,9 @@ def plot_heatmap(lines, f_name, args):
     # add the title
     if args.title:
         if args.inside:
-            ax.text(0.5, 0.9, args.title, fontsize='x-large', color='white', horizontalalignment='center', verticalalignment='bottom', transform=ax.transAxes)
+            ax.text(len(data[0])/2, 20, args.title, fontsize='x-large', color='white', horizontalalignment='center', verticalalignment='top')
         else:
-            ax.text(0.5, 1.01, args.title, fontsize='x-large', horizontalalignment='center', verticalalignment='bottom', transform=ax.transAxes)
+            ax.text(len(data[0])/2, -5, args.title, fontsize='x-large', horizontalalignment='center', verticalalignment='bottom')
     # redefine tick positions
     fi = find_freq_index(xmin, xmax, step, txminor)
     ax.set_xticks(fi[::10])
