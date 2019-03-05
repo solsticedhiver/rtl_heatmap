@@ -306,12 +306,10 @@ def plot_heatmap(lines, f_name, args):
 
     # draw tick label inside plot in white
     if args.inside:
-        ax.tick_params(axis='x', direction='in', which='both', color='white', pad=-15, zorder=1000)
-        ax.tick_params(axis='y', direction='in', which='both', color='white', pad=-35, zorder=1000)
-        for label in ax.get_xticklabels():
-            label.set_color('white')
-        for label in ax.get_yticklabels():
-            label.set_color('white')
+        ax.tick_params(axis='x', direction='in', which='both', color='white', labelcolor='white',
+            labelsize='small', pad=-15, zorder=1000)
+        ax.tick_params(axis='y', direction='in', which='both', color='white', labelcolor='white',
+            labelsize='small', pad=-35, zorder=1000)
         # remove label outside of plot
         fig.canvas.draw()
         pos = ax.get_window_extent()
@@ -330,8 +328,8 @@ def plot_heatmap(lines, f_name, args):
             height, width = size[1], size[0]
             pad_inches = None
             width = size[0]
-        height = height*8
-        width = width*8
+        height = height*3
+        width = width*3
         fig.set_size_inches(width, height)
         fig.savefig(f_name, dpi=args.dpi, bbox_inches='tight', pad_inches=pad_inches)
         print_quiet(':: saved to %s' % f_name, args.quiet)
@@ -341,7 +339,7 @@ if __name__ == '__main__':
     parser.add_argument('--dbmin', type=float, help='Minimum value to consider for colormap normalization')
     parser.add_argument('--dbmax', type=float, help='Maximum value to consider for colormap normalization')
     parser.add_argument('-c', '--colormap', default='charolastra', help='Specify the colormap to use (use "list" to get a list of available colormaps)')
-    parser.add_argument('--dpi', default=100, type=int, help='Specify dpi of output image')
+    parser.add_argument('--dpi', default=300, type=int, help='Specify dpi of output image')
     parser.add_argument('-f', '--format', help='Format of the output image file')
     parser.add_argument('-i', '--input', help='Input csv filename')
     parser.add_argument('--inside', action='store_true', default=False, help='Draw tick label inside plot')
