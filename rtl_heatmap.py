@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # coding: utf-8
 import sys
 import gzip
@@ -11,7 +11,7 @@ try:
     import matplotlib.ticker as ticker
     from matplotlib.colors import ListedColormap, hsv_to_rgb
 except ImportError as i:
-    print 'Error: you need **matplotlib** installed for this to run.'
+    print('Error: you need **matplotlib** installed for this to run.', file=sys.stderr)
     sys.exit(-1)
 
 VERSION = '0.1'
@@ -28,15 +28,17 @@ kHz = 10**3
 
 def print_quiet(s, quiet):
     if not quiet:
-        print s
+        print(s)
 def print_error(s):
-    sys.stderr.write(s+'\n')
-    sys.stderr.flush()
+    print(s, file=sys.stderr)
 
 def read_data(f_name, quiet):
     print_quiet(':: reading file %s' % f_name, quiet)
-    f_open = gzip.open if f_name.endswith('.gz') else open
-    f = f_open(f_name, 'rb')
+    if f_name.endswith('.gz'):
+        f_open = lambda x: gzip.open(x, 'rt')
+    else:
+        f_open = lambda x: open(x, 'r')
+    f = f_open(f_name)
     lines = f.readlines()
     f.close()
     return lines
@@ -122,7 +124,7 @@ def print_with_columns(L, columns, prefix=''):
             lines[j][i] = lines[j][i].ljust(cmax+2)
 
     for j in range(len(lines)):
-        print prefix+''.join(lines[j])
+        print(prefix+''.join(lines[j]))
 
 def find_time_index(datetimes, multiple):
     # find index that matches the multiple in minute
@@ -242,7 +244,7 @@ def plot_heatmap(lines, f_name, args):
         txmajor = MHz
     else:
         txmajor = 100*kHz
-    txminor = txmajor/10
+    txminor = txmajor//10
 
     if args.yticks is not None:
         tymajor = args.yticks
@@ -257,7 +259,7 @@ def plot_heatmap(lines, f_name, args):
         else:
             tymajor = 15
     if tymajor >= 60*2:
-        tyminor = tymajor/4
+        tyminor = tymajor//4
     elif tymajor >= 60:
         tyminor = 15
     elif tymajor >= 30:
@@ -299,7 +301,7 @@ def plot_heatmap(lines, f_name, args):
         summary = '''started at %s
 ended at %s
 from %.2f MHz to %.2f MHz
-values from %s dB to %s dB''' % (datetimes[0].replace('T', ' '), datetimes[-1].replace('T', ' '), float(xmin)/MHz, float(xmax)/MHz, zmin, zmax)
+values from %s dB to %s dB''' % (datetimes[0].replace('T', ' '), datetimes[-1].replace('T', ' '), xmin/MHz, xmax/MHz, zmin, zmax)
         ax.text(xlength-xlength/100, 20, summary, fontsize='small', color='white', horizontalalignment='right', verticalalignment='top')
 
     # redefine tick positions
@@ -307,7 +309,7 @@ values from %s dB to %s dB''' % (datetimes[0].replace('T', ' '), datetimes[-1].r
     ax.set_xticks(fi[::10])
     ax.set_xticks(fi, minor=True)
     fi = find_time_index(datetimes, tyminor)
-    ax.set_yticks(fi[::tymajor/tyminor])
+    ax.set_yticks(fi[::tymajor//tyminor])
     ax.set_yticks(fi, minor=True)
     # redefine tick labels
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(showfreq))
@@ -369,17 +371,17 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.version:
-        print '''rtl_heatmap %s
+        print('''rtl_heatmap %s
 Copyright ©2019 solstice d'Hiver
-GPL licensed''' % VERSION
+GPL licensed''' % VERSION)
         sys.exit(1)
 
     if args.colormap == 'list':
-        print 'Available colormaps are:'
+        print('Available colormaps are:')
         for k,v in COLORMAPS.items():
-            print '  - %s:' % k
+            print('  - %s:' % k)
             print_with_columns(v, 6, prefix='    ')
-            print
+            print()
         sys.exit(1)
 
     if args.input is None:
