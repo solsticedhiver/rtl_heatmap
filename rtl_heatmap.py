@@ -287,12 +287,21 @@ def plot_heatmap(lines, f_name, args):
     if args.ylines:
         ax.grid(True, axis='y', which='major', color='white', linewidth=0.5, linestyle='-.')
 
+    xlength = len(data[0])
     # add the title
     if args.title:
         if args.inside:
-            ax.text(len(data[0])/2, 20, args.title, fontsize='x-large', color='white', horizontalalignment='center', verticalalignment='top')
+            ax.text(xlength/2, 20, args.title, fontsize='x-large', color='white', horizontalalignment='center', verticalalignment='top')
         else:
-            ax.text(len(data[0])/2, -5, args.title, fontsize='x-large', horizontalalignment='center', verticalalignment='bottom')
+            ax.text(xlength/2, -5, args.title, fontsize='x-large', horizontalalignment='center', verticalalignment='bottom')
+    # add a summary
+    if args.summary:
+        summary = '''started at %s
+ended at %s
+from %.2f MHz to %.2f MHz
+values from %s dB to %s dB''' % (datetimes[0].replace('T', ' '), datetimes[-1].replace('T', ' '), float(xmin)/MHz, float(xmax)/MHz, zmin, zmax)
+        ax.text(xlength-xlength/100, 20, summary, fontsize='small', color='white', horizontalalignment='right', verticalalignment='top')
+
     # redefine tick positions
     fi = find_freq_index(xmin, xmax, step, txminor)
     ax.set_xticks(fi[::10])
@@ -307,9 +316,9 @@ def plot_heatmap(lines, f_name, args):
     # draw tick label inside plot in white
     if args.inside:
         ax.tick_params(axis='x', direction='in', which='both', color='white', labelcolor='white',
-            labelsize='small', pad=-15, zorder=1000)
+            labelsize='x-small', pad=-13, zorder=1000)
         ax.tick_params(axis='y', direction='in', which='both', color='white', labelcolor='white',
-            labelsize='small', pad=-35, zorder=1000)
+            labelsize='x-small', pad=-26, zorder=1000)
         # remove label outside of plot
         fig.canvas.draw()
         pos = ax.get_window_extent()
@@ -340,8 +349,9 @@ if __name__ == '__main__':
     parser.add_argument('--dbmax', type=float, help='Maximum value to consider for colormap normalization')
     parser.add_argument('-c', '--colormap', default='charolastra', help='Specify the colormap to use (use "list" to get a list of available colormaps)')
     parser.add_argument('--dpi', default=300, type=int, help='Specify dpi of output image')
-    parser.add_argument('-f', '--format', help='Format of the output image file')
+    parser.add_argument('--end', help='End time to use; everything after that is ignored; expected format YYY-mm-ddTHH[:MM[:SS]]')
     parser.add_argument('-i', '--input', help='Input csv filename')
+    parser.add_argument('-f', '--format', help='Format of the output image file')
     parser.add_argument('--inside', action='store_true', default=False, help='Draw tick label inside plot')
     parser.add_argument('--force', action='store_true', default=False, help='Force overwrite of existing output file')
     parser.add_argument('--no-margin', action='store_true', default=False, help="Don't draw any margin around the plot")
@@ -349,8 +359,8 @@ if __name__ == '__main__':
     parser.add_argument('-q', '--quiet', action='store_true', default=False, help='no verbose output')
     parser.add_argument('-s', '--show', action='store_true', default=False, help='Show pyplot window instead of outputting an image')
     parser.add_argument('--start', help='Start time to use; everything before that is ignored; expected format YYY-mm-ddTHH[:MM[:SS]]')
-    parser.add_argument('--end', help='End time to use; everything after that is ignored; expected format YYY-mm-ddTHH[:MM[:SS]]')
     parser.add_argument('--sort', action='store_true', default=False, help='Sort csv file data')
+    parser.add_argument('--summary', action='store_true', default=False, help='Draw a summary on  plot')
     parser.add_argument('--title', help='Add a title to the plot')
     parser.add_argument('-v', '--version', action='store_true', help='Print version and exit')
     parser.add_argument('--yticks', help='Define tick in the time axis, xxx[h|m]')
