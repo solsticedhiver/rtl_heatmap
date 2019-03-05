@@ -45,12 +45,12 @@ the data gathered by rtl_power. All *matplotlib* colormaps are available and als
 # Examples
 Example of a generated heatmap, using defaults, 863MHz to 870MHz for a day:
 
-![SRD860](SRD860.png)
+![SRD860](img/SRD860.png)
 
 ## No margin
 Using `-c viridis --no-margin --inside --ylines --yticks 1h --title "Full spectrum scan 25MHz-1500MHz/8h"`
 
-![Full spectrum scan 25MHz-1500MHz](fullscan.png)
+![Full spectrum scan 25MHz-1500MHz](img/fullscan.png)
 
 ## Normalization
 If you expect the same color scale for different data set, you need to specify a normalization range by using --dbmin and --dbmax.
@@ -67,9 +67,9 @@ For example, if the values span -27.81dB to -3.23dB and you specify `--dbmin -20
 
 |No normalization|Normalization by specifying `--dbmin -40 --dbmax 5`|
 |---|---|
-|![No normalisation](LPD433.png)|![normalization](LPD433dbset.png)|
+|![No normalisation](img/LPD433.png)|![normalization](img/LPD433dbset.png)|
 
 
 |Truncated data set from 08:00 to 09:00|Truncation specified with `--dbmin -20 --dbmax -3`|
 |---|---|
-|![Truncation](LPD433hour.png)|![Truncation](LPD433trunc.png)|
+|![Truncation](img/LPD433hour.png)|![Truncation](img/LPD433trunc.png)|
