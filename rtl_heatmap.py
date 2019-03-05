@@ -204,7 +204,11 @@ def plot_heatmap(lines, f_name, args):
         print_error('Error: we ended up with an empty data set !?')
         sys.exit(-1)
 
-    data.append(floatify(tmp)) # last line
+    # last line
+    tmp = floatify(tmp)
+    zmax = max(zmax, max(tmp))
+    zmin = min(zmin, min(tmp))
+    data.append(tmp)
     datetimes.append(current)
 
     if args.dbmin is not None and (args.dbmin > zmax or args.dbmax < zmin):
