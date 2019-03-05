@@ -323,18 +323,17 @@ def plot_heatmap(lines, f_name, args):
     else:
         if args.no_margin:
             size = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
-            height = size.height
-            width = size.width
+            height, width = size.height, size.width
             pad_inches = 0
         else:
             size = fig.get_size_inches()
-            height = size[1]
-            width = size[0]
+            height, width = size[1], size[0]
             pad_inches = None
-        height = height*fig.dpi*6
-        width = width*fig.dpi*6
+            width = size[0]
+        height = height*8
+        width = width*8
         dpi = 100
-        fig.set_size_inches(float(width)/dpi, float(height)/dpi)
+        fig.set_size_inches(width, height)
         fig.savefig(f_name, dpi=dpi, bbox_inches='tight', pad_inches=pad_inches)
         print_quiet(':: saved to %s' % f_name, args.quiet)
 
