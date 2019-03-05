@@ -332,9 +332,8 @@ def plot_heatmap(lines, f_name, args):
             width = size[0]
         height = height*8
         width = width*8
-        dpi = 100
         fig.set_size_inches(width, height)
-        fig.savefig(f_name, dpi=dpi, bbox_inches='tight', pad_inches=pad_inches)
+        fig.savefig(f_name, dpi=args.dpi, bbox_inches='tight', pad_inches=pad_inches)
         print_quiet(':: saved to %s' % f_name, args.quiet)
 
 if __name__ == '__main__':
@@ -342,6 +341,7 @@ if __name__ == '__main__':
     parser.add_argument('--dbmin', type=float, help='Minimum value to consider for colormap normalization')
     parser.add_argument('--dbmax', type=float, help='Maximum value to consider for colormap normalization')
     parser.add_argument('-c', '--colormap', default='charolastra', help='Specify the colormap to use (use "list" to get a list of available colormaps)')
+    parser.add_argument('--dpi', default=100, type=int, help='Specify dpi of output image')
     parser.add_argument('-f', '--format', help='Format of the output image file')
     parser.add_argument('-i', '--input', help='Input csv filename')
     parser.add_argument('--inside', action='store_true', default=False, help='Draw tick label inside plot')
