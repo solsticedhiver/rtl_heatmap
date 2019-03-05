@@ -318,9 +318,9 @@ values from %s dB to %s dB''' % (datetimes[0].replace('T', ' '), datetimes[-1].r
     # draw tick label inside plot in white
     if args.inside:
         ax.tick_params(axis='x', direction='in', which='both', color='white', labelcolor='white',
-            labelsize='x-small', pad=-13, zorder=1000)
+            labelsize='xx-small', pad=-13, zorder=1000)
         ax.tick_params(axis='y', direction='in', which='both', color='white', labelcolor='white',
-            labelsize='x-small', pad=-26, zorder=1000)
+            labelsize='xx-small', pad=-26, zorder=1000)
         # remove label outside of plot
         fig.canvas.draw()
         pos = ax.get_window_extent()
