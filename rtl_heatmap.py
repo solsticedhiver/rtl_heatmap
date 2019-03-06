@@ -229,7 +229,7 @@ def plot_heatmap(lines, f_name, args):
         si = 0
     def showdatetime(tick, pos):
         try:
-            dt = datetimes[int(tick)][si:16]
+            dt = (datetimes[int(tick)][si:16]).replace('T', ' ')
         except IndexError as i:
             dt = None
         return dt
@@ -320,7 +320,7 @@ values from %s dB to %s dB''' % (datetimes[0].replace('T', ' '), datetimes[-1].r
         ax.tick_params(axis='x', direction='in', which='both', color='white', labelcolor='white',
             labelsize='xx-small', pad=-13, zorder=1000)
         ax.tick_params(axis='y', direction='in', which='both', color='white', labelcolor='white',
-            labelsize='xx-small', pad=-26, zorder=1000)
+            labelsize='xx-small', pad=-26-(35 if si == 0 else 0), zorder=1000)
         # remove label outside of plot
         fig.canvas.draw()
         pos = ax.get_window_extent()
