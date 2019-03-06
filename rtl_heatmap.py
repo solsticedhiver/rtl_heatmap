@@ -327,12 +327,16 @@ values from %s dB to %s dB''' % (datetimes[0].replace('T', ' '), datetimes[-1].r
         pos = ax.get_window_extent()
         remove_ticklabel(ax, 'x', pos)
         remove_ticklabel(ax, 'y', pos)
-    elif args.colorbar:
-        # create an axes on the right side of ax. The width of cax will be 5%
-        # of ax and the padding between cax and ax will be fixed at 0.05 inch.
+    if args.colorbar:
+        # create an axes on the right side of ax. The width of cax will be 0.3
+        # of ax and the padding between cax and ax will be fixed at 0.1 inch.
         divider = make_axes_locatable(ax)
         cax = divider.append_axes('right', size=0.3, pad=0.1)
-        fig.colorbar(im, cax=cax)
+        cb = fig.colorbar(im, cax=cax)
+        if args.inside:
+            cb.ax.tick_params(axis='y', direction='in', color='white', labelcolor='white',
+            labelsize='xx-small', pad=-15)
+        #cb.ax.invert_yaxis() # TODO: fix the missing tick/ticklabel
 
     if args.show:
         plt.show()
