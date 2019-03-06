@@ -10,6 +10,7 @@ try:
     import matplotlib.pyplot as plt
     import matplotlib.ticker as ticker
     from matplotlib.colors import ListedColormap, hsv_to_rgb
+    from mpl_toolkits.axes_grid1 import make_axes_locatable
 except ImportError as i:
     print('Error: you need **matplotlib** installed for this to run.', file=sys.stderr)
     sys.exit(-1)
@@ -279,9 +280,9 @@ def plot_heatmap(lines, f_name, args):
 
     if args.dbmin is not None:
         print_quiet('Normalizing data set to use %ddb to %ddb range' % (args.dbmin, args.dbmax), args.quiet)
-        ax.imshow(data, cmap=args.colormap, aspect='equal', vmin=args.dbmin, vmax=args.dbmax)
+        im = ax.imshow(data, cmap=args.colormap, aspect='equal', vmin=args.dbmin, vmax=args.dbmax)
     else:
-        ax.imshow(data, cmap=args.colormap, aspect='equal')
+        im = ax.imshow(data, cmap=args.colormap, aspect='equal')
 
     # show lines matching major ticks
     if args.xlines:
@@ -326,6 +327,12 @@ values from %s dB to %s dB''' % (datetimes[0].replace('T', ' '), datetimes[-1].r
         pos = ax.get_window_extent()
         remove_ticklabel(ax, 'x', pos)
         remove_ticklabel(ax, 'y', pos)
+    elif args.colorbar:
+        # create an axes on the right side of ax. The width of cax will be 5%
+        # of ax and the padding between cax and ax will be fixed at 0.05 inch.
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes('right', size=0.3, pad=0.1)
+        fig.colorbar(im, cax=cax)
 
     if args.show:
         plt.show()
@@ -345,11 +352,12 @@ values from %s dB to %s dB''' % (datetimes[0].replace('T', ' '), datetimes[-1].r
         fig.savefig(f_name, dpi=args.dpi, bbox_inches='tight', pad_inches=pad_inches)
         print_quiet(':: saved to %s' % f_name, args.quiet)
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(description='Yet another heatmap generator for rtl_power .csv file')
     parser.add_argument('--dbmin', type=float, help='Minimum value to consider for colormap normalization')
     parser.add_argument('--dbmax', type=float, help='Maximum value to consider for colormap normalization')
     parser.add_argument('-c', '--colormap', default='charolastra', help='Specify the colormap to use (use "list" to get a list of available colormaps)')
+    parser.add_argument('--colorbar', default=False, action='store_true', help='Add a colorbar to the plot')
     parser.add_argument('--dpi', default=300, type=int, help='Specify dpi of output image')
     parser.add_argument('--end', help='End time to use; everything after that is ignored; expected format YYY-mm-ddTHH[:MM[:SS]]')
     parser.add_argument('-i', '--input', help='Input csv filename')
@@ -438,3 +446,9 @@ GPL licensed''' % VERSION)
         sys.exit(-1)
 
     plot_heatmap(lines, output, args)
+
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt as k:
+        pass
