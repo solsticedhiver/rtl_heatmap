@@ -240,7 +240,7 @@ def plot_heatmap(lines, f_name, args):
     elif xmax-xmin > 100*MHz:
         txmajor = 10*MHz
     elif xmax-xmin > 10*MHz:
-        txmajor = 1*MHz
+        txmajor = 10*MHz
     elif xmax-xmin > 1*MHz:
         txmajor = MHz
     else:
@@ -329,7 +329,7 @@ values from %s dB to %s dB''' % (datetimes[0].replace('T', ' '), datetimes[-1].r
         remove_ticklabel(ax, 'y', pos)
     if args.colorbar:
         # create an axes on the right side of ax. The width of cax will be 0.3
-        # of ax and the padding between cax and ax will be fixed at 0.1 inch.
+        # inch and the padding between cax and ax will be fixed at 0.1 inch.
         divider = make_axes_locatable(ax)
         cax = divider.append_axes('right', size=0.3, pad=0.1)
         cb = fig.colorbar(im, cax=cax)
