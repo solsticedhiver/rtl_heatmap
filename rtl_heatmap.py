@@ -142,16 +142,17 @@ def find_time_index(datetimes, multiple):
     return indexes
 
 def find_freq_index(xmin, xmax, step, modulo):
-    count = int(math.ceil((xmax-xmin)/step))
     freqs = [xmin]
     f = xmin
-    for i in range(count):
-        f = int(round(f+step))
+    while f < xmax:
+        f += step
         freqs.append(f)
+    freqs.append(f)
+    count = len(freqs)
     indexes = []
     fc = xmin
     while fc < xmax:
-        diff = [(abs(fc-freqs[i]), i) for i in range(count+1)]
+        diff = [(abs(fc-freqs[i]), i) for i in range(count)]
         fmin = min([x for x,_ in diff])
         indx = [i for x,i in diff if x == fmin][0]
         indexes.append(indx)
@@ -225,7 +226,7 @@ def plot_heatmap(lines, f_name, args):
 
     start = time.mktime(time.strptime(datetimes[0], '%Y-%m-%dT%H:%M:%S'))
     end = time.mktime(time.strptime(datetimes[-1], '%Y-%m-%dT%H:%M:%S'))
-    si = 11
+    si = 11 # starting index of timestamp
     if end-start > 24*60*60:
         si = 0
     def showdatetime(tick, pos):
