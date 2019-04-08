@@ -46,29 +46,6 @@ def read_data(f_name, quiet):
     f.close()
     return lines
 
-def sort_and_clean(L, start=None, end=None):
-    indexes = {}
-    if start or end:
-        if start and end is None:
-            flambda = lambda x: start < x
-        elif start is None and end:
-            flambda = lambda x: x < end
-        elif start and end:
-            flambda = lambda x: start < x < end
-
-        for i,l in enumerate(L):
-            fields = [f.strip() for f in l.split(',')]
-            datetimefreq = '%sT%sF%s' % (fields[0], fields[1], fields[2])
-            indexes[datetimefreq] = i
-        si = filter(flambda, sorted(indexes.keys()))
-        return [L[indexes[i]] for i in si]
-    else:
-        for i,l in enumerate(L):
-            fields = [f.strip() for f in l.split(',')]
-            datetimefreq = '%sT%sF%s' % (fields[0], fields[1], fields[2])
-            indexes[datetimefreq] = i
-        return [L[indexes[i]] for i in sorted(indexes.keys())]
-
 def is_inside(b1, b2, dir):
     if dir == 'x':
         return b1.x1 <= b2.xmax and b1.x0 >= b2.xmin
@@ -211,6 +188,7 @@ def plot_heatmap(lines, f_name, args):
     zmax = -100
     print_quiet(':: processing data', args.quiet)
 
+    # gather frequency values for each timestamp
     od = OrderedDict()
     for i,line in enumerate(lines):
         fields = [f.strip() for f in line.split(',')]
@@ -221,8 +199,20 @@ def plot_heatmap(lines, f_name, args):
             od[ts] = []
         for i in range(len(freqs)):
             od[ts].append((freqs[i], values[i]))
-    data = []
     datetimes = list(od.keys())
+
+    # truncate data outside of time window if needed
+    start = datetimes[0]
+    end = datetimes[-1]
+    if args.start is not None:
+        start = args.start
+    if args.end is not None:
+        end = args.end
+    od = {k:v for k,v in od.items() if k >= start and k <= end} # should keep insertion order
+
+    # create data and stats
+    datetimes = list(od.keys())
+    data = []
     count = 0
     for ts, v in od.items():
         w = sorted(v, key=lambda x:x[0])
@@ -415,7 +405,6 @@ def main():
     parser.add_argument('-q', '--quiet', action='store_true', default=False, help='no verbose output')
     parser.add_argument('-s', '--show', action='store_true', default=False, help='Show pyplot window instead of outputting an image')
     parser.add_argument('--start', help='Start time to use; everything before that is ignored; expected format YYY-mm-ddTHH[:MM[:SS]]')
-    parser.add_argument('--sort', action='store_true', default=False, help='Sort csv file data')
     parser.add_argument('--summary', action='store_true', default=False, help='Draw a summary on  plot')
     parser.add_argument('--title', help='Add a title to the plot')
     parser.add_argument('-v', '--version', action='store_true', help='Print version and exit')
@@ -479,9 +468,6 @@ GPL licensed''' % VERSION)
             args.yticks = int(args.yticks)
 
     lines = read_data(args.input, args.quiet)
-    if args.sort or args.start or args.end:
-        # force also a sort if using either --start or --end
-        lines = sort_and_clean(lines, start=args.start, end=args.end)
 
     if not args.output:
         output = args.input
