@@ -7,7 +7,6 @@ import math
 import os.path
 import argparse
 from collections import OrderedDict
-from bisect import bisect_left
 try:
     import matplotlib.pyplot as plt
     import matplotlib.ticker as ticker
@@ -157,30 +156,6 @@ def frange(start, end, step):
         x += step
     return res
 
-def interpolate(x_list, y_list, xmin, xmax, step):
-    # https://stackoverflow.com/questions/7343697/how-to-implement-linear-interpolation
-    if any(y - x <= 0 for x, y in zip(x_list, x_list[1:])):
-        raise ValueError("x_list must be in strictly ascending order!")
-    intervals = zip(x_list, x_list[1:], y_list, y_list[1:])
-    slopes = [(y2 - y1)/(x2 - x1) for x1, x2, y1, y2 in intervals]
-
-    x = xmin
-    xs = []
-    ys = []
-    i = 0
-    while x < xmax:
-        if x <= x_list[0]:
-            y = y_list[0]
-        elif x >= x_list[-1]:
-            y = y_list[-1]
-        else:
-            i = bisect_left(x_list, x, lo=i) - 1 # slight optimization: use a low value to bisect
-            y = y_list[i] + slopes[i] * (x - x_list[i])
-        xs.append(x)
-        ys.append(y)
-        x += step
-    return (xs, ys)
-
 def plot_heatmap(lines, f_name, args):
     xmin = 10**10
     xmax = 0
@@ -223,17 +198,8 @@ def plot_heatmap(lines, f_name, args):
         zmin = min(zmin, min(z))
         zmax = max(zmax, max(z))
         count = max(count, len(x))
-        #od[ts] = (x, z)
-        #if not args.interpolate:
-        #    data.append(z)
         data.append(z)
     step = (xmax-xmin)/count
-    #if args.interpolate:
-    #    # linear interpolation to get data evenly spaced
-    #    print_quiet('   interpolation', args.quiet)
-    #    for ts, v in od.items():
-    #        intp = interpolate(v[0], v[1], xmin, xmax, step)
-    #        data.append(intp[1])
 
     if len(data) == 0:
         print_error('Error: we ended up with an empty data set !?')
@@ -399,7 +365,6 @@ def main():
     parser.add_argument('--inside', action='store_true', default=False, help='Draw tick label inside plot')
     parser.add_argument('--force', action='store_true', default=False, help='Force overwrite of existing output file')
     parser.add_argument('--fontsize', type=int, default=4, help="Font size in points (default=4)")
-    #parser.add_argument('--interpolate', action='store_true', default=False, help="Interpolate data to get evenly spaced value")
     parser.add_argument('--no-margin', action='store_true', default=False, help="Don't draw any margin around the plot")
     parser.add_argument('-o', '--output', help='Explicit name for the output file')
     parser.add_argument('-q', '--quiet', action='store_true', default=False, help='no verbose output')
@@ -467,8 +432,6 @@ GPL licensed''' % VERSION)
         else:
             args.yticks = int(args.yticks)
 
-    lines = read_data(args.input, args.quiet)
-
     if not args.output:
         output = args.input
         indx = output.rindex('.')
@@ -488,6 +451,7 @@ GPL licensed''' % VERSION)
         print_error('Abort: file %s already exits. Use --force to overwrite.' % output)
         sys.exit(-1)
 
+    lines = read_data(args.input, args.quiet)
     plot_heatmap(lines, output, args)
 
 if __name__ == '__main__':
