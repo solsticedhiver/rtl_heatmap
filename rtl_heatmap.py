@@ -235,16 +235,19 @@ def plot_heatmap(lines, f_name, args):
             dt = None
         return dt
 
-    if xmax-xmin > 1000*MHz:
-        txmajor = 100*MHz
-    elif xmax-xmin > 100*MHz:
-        txmajor = 10*MHz
-    elif xmax-xmin > 10*MHz:
-        txmajor = 10*MHz
-    elif xmax-xmin > 1*MHz:
-        txmajor = MHz
+    if args.xticks:
+        txmajor  = args.xticks
     else:
-        txmajor = 100*kHz
+        if xmax-xmin > 500*MHz:
+            txmajor = 100*MHz
+        elif xmax-xmin > 100*MHz:
+            txmajor = 10*MHz
+        elif xmax-xmin > 10*MHz:
+            txmajor = 10*MHz
+        elif xmax-xmin > 1*MHz:
+            txmajor = MHz
+        else:
+            txmajor = 100*kHz
     txminor = txmajor//10
 
     if args.yticks is not None:
@@ -380,6 +383,7 @@ def main():
     parser.add_argument('--summary', action='store_true', default=False, help='Draw a summary on  plot')
     parser.add_argument('--title', help='Add a title to the plot')
     parser.add_argument('-v', '--version', action='store_true', help='Print version and exit')
+    parser.add_argument('--xticks', help='Define tick in the frequency axis, xxxx[MHz,kHz]')
     parser.add_argument('--yticks', help='Define tick in the time axis, xxx[h|m]')
     parser.add_argument('--xlines', action='store_true', default=False, help='Show lines matching major xtick labels')
     parser.add_argument('--ylines', action='store_true', default=False, help='Show lines matching major ytick labels')
@@ -419,6 +423,16 @@ GPL licensed''' % VERSION)
     if args.colormap != 'charolastra' and args.colormap not in plt.colormaps():
         print_error('Error: colormap "%s" not found. Use "list" to see the available colormaps' % args.colormap)
         sys.exit(-1)
+
+    if args.xticks is not None:
+        unit = args.xticks[-3:].lower()
+        if unit == 'mhz':
+            args.xticks = int(args.xticks[:-3])*MHz
+        elif unit == 'khz':
+            args.xticks = int(args.xticks[:-3])*kHz
+        else:
+            print_error("Error: can't parse --xticks value")
+            sys.exit(-1)
 
     if args.yticks is not None:
         if args.yticks.endswith('h'):
