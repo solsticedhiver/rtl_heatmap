@@ -159,16 +159,16 @@ def plot_heatmap(f_name, args):
             fields = [g.strip() for g in line.split(',')]
             ts = '%sT%s' % (fields[0], fields[1])
             freqs = frange(int(fields[2]), int(fields[3]), float(fields[4]))
-            values = fields[6:6+len(freqs)]
+            values = floatify(fields[6:6+len(freqs)])
             if ts not in od:
                 od[ts] = []
             for i in range(len(freqs)):
                 od[ts].append((freqs[i], values[i]))
-    datetimes = list(od.keys())
 
     print_quiet(':: processing data', args.quiet)
     # truncate data outside of time window if needed
     if args.start is not None or args.end is not None:
+        datetimes = list(od.keys())
         start = datetimes[0]
         end = datetimes[-1]
         if args.start is not None:
@@ -187,13 +187,12 @@ def plot_heatmap(f_name, args):
     count = 0
     for ts, v in od.items():
         w = sorted(v, key=lambda x:x[0])
-        x = [x for x,z in w]
-        z = floatify([z for x,z in w])
-        xmin = min(xmin, x[0])
-        xmax = max(xmax, x[-1])
+        z = [z for _,z in w]
+        xmin = min(xmin, w[0][0])
+        xmax = max(xmax, w[-1][0])
         zmin = min(zmin, min(z))
         zmax = max(zmax, max(z))
-        count = max(count, len(x))
+        count = max(count, len(w))
         data.append(z)
     del od
     step = (xmax-xmin)/count
