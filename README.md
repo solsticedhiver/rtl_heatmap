@@ -8,10 +8,12 @@ the data gathered by rtl_power. All *matplotlib* colormaps are available and als
 
     $ ./rtl_heatmap.py -h
     usage: rtl_heatmap.py [-h] [--dbmin DBMIN] [--dbmax DBMAX] [-c COLORMAP]
-                          [-f FORMAT] [-i INPUT] [--inside] [--force]
+                          [--colorbar] [--dpi DPI] [--end END] [-i INPUT]
+                          [-f FORMAT] [--inside] [--force] [--fontsize FONTSIZE]
                           [--no-margin] [-o OUTPUT] [-q] [-s] [--start START]
-                          [--end END] [--sort] [--title TITLE] [--yticks YTICKS]
-                          [--xlines] [--ylines]
+                          [--sort] [--summary] [--title TITLE] [-v]
+                          [--xticks XTICKS] [--yticks YTICKS] [--xlines]
+                          [--ylines]
 
     Yet another heatmap generator for rtl_power .csv file
 
@@ -20,14 +22,19 @@ the data gathered by rtl_power. All *matplotlib* colormaps are available and als
       --dbmin DBMIN         Minimum value to consider for colormap normalization
       --dbmax DBMAX         Maximum value to consider for colormap normalization
       -c COLORMAP, --colormap COLORMAP
-                            Specify the colormap to use (use "list" to get a list of
-                            available colormaps)
-      -f FORMAT, --format FORMAT
-                            Format of the output image file
+                            Specify the colormap to use (use "list" to get a list
+                            of available colormaps)
+      --colorbar            Add a colorbar to the plot
+      --dpi DPI             Specify dpi of output image
+      --end END             End time to use; everything after that is ignored;
+                            expected format YYY-mm-ddTHH[:MM[:SS]]
       -i INPUT, --input INPUT
                             Input csv filename
+      -f FORMAT, --format FORMAT
+                            Format of the output image file
       --inside              Draw tick label inside plot
       --force               Force overwrite of existing output file
+      --fontsize FONTSIZE   Font size in points (default=4)
       --no-margin           Don't draw any margin around the plot
       -o OUTPUT, --output OUTPUT
                             Explicit name for the output file
@@ -35,14 +42,14 @@ the data gathered by rtl_power. All *matplotlib* colormaps are available and als
       -s, --show            Show pyplot window instead of outputting an image
       --start START         Start time to use; everything before that is ignored;
                             expected format YYY-mm-ddTHH[:MM[:SS]]
-      --end END             End time to use; everything after that is ignored;
-                            expected format YYY-mm-ddTHH[:MM[:SS]]
       --sort                Sort csv file data
+      --summary             Draw a summary on plot
       --title TITLE         Add a title to the plot
+      -v, --version         Print version and exit
+      --xticks XTICKS       Define tick in the frequency axis, xxxx[MHz,kHz]
       --yticks YTICKS       Define tick in the time axis, xxx[h|m]
       --xlines              Show lines matching major xtick labels
       --ylines              Show lines matching major ytick labels
-
 
 # Examples
 Example of a generated heatmap, using defaults, 863MHz to 870MHz for a day:
@@ -50,6 +57,8 @@ Example of a generated heatmap, using defaults, 863MHz to 870MHz for a day:
 ![SRD860](img/SRD860.png)
 
 ## No margin
+You can remove margin around the plot and draw label inside it. You can add a title. And a summary.
+
 Using `-c viridis --no-margin --inside --ylines --yticks 1h --title "Full spectrum scan 25MHz-1500MHz/8h"`
 
 ![Full spectrum scan 25MHz-1500MHz](img/fullscan.png)
