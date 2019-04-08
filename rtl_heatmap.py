@@ -267,6 +267,8 @@ def plot_heatmap(lines, f_name, args):
         tyminor = 10
     elif tymajor >= 15:
         tyminor = 5
+    else:
+        tyminor = 5
 
     if txmajor < MHz:
         def showfreq(tick, pos):
