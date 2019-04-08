@@ -6,6 +6,8 @@ import time
 import math
 import os.path
 import argparse
+from collections import OrderedDict
+from bisect import bisect_left
 try:
     import matplotlib.pyplot as plt
     import matplotlib.ticker as ticker
@@ -170,50 +172,82 @@ def remove_ticklabel(ax, axis, bbox):
         del ticks[i]
     getattr(ax, 'set_%sticks' % axis)(ticks)
 
+def frange(start, end, step):
+    res = []
+    x = start
+    while x < end:
+        res.append(x)
+        x += step
+    return res
+
+def interpolate(x_list, y_list, xmin, xmax, step):
+    # https://stackoverflow.com/questions/7343697/how-to-implement-linear-interpolation
+    if any(y - x <= 0 for x, y in zip(x_list, x_list[1:])):
+        raise ValueError("x_list must be in strictly ascending order!")
+    intervals = zip(x_list, x_list[1:], y_list, y_list[1:])
+    slopes = [(y2 - y1)/(x2 - x1) for x1, x2, y1, y2 in intervals]
+
+    x = xmin
+    xs = []
+    ys = []
+    i = 0
+    while x < xmax:
+        if x <= x_list[0]:
+            y = y_list[0]
+        elif x >= x_list[-1]:
+            y = y_list[-1]
+        else:
+            i = bisect_left(x_list, x, lo=i) - 1 # slight optimization: use a low value to bisect
+            y = y_list[i] + slopes[i] * (x - x_list[i])
+        xs.append(x)
+        ys.append(y)
+        x += step
+    return (xs, ys)
+
 def plot_heatmap(lines, f_name, args):
-    data = []
-    tmp = []
     xmin = 10**10
     xmax = 0
     zmin = 100
     zmax = -100
-    datetimes = []
-    current = ''
     print_quiet(':: processing data', args.quiet)
 
+    od = OrderedDict()
     for i,line in enumerate(lines):
         fields = [f.strip() for f in line.split(',')]
-        if i == 0:
-            prev = '%sT%s' % (fields[0], fields[1])
-            freq = '-1'
-            step = float(fields[4])
-        current = '%sT%s' % (fields[0], fields[1])
-        if current == prev:
-            xmax = max(xmax, int(fields[3]))
-            xmin = min(xmin, int(fields[2]))
-            if fields[2] == freq:
-                tmp.extend(fields[7:])
-            else:
-                tmp.extend(fields[6:])
-        else:
-            tmp = floatify(tmp)
-            zmax = max(zmax, max(tmp))
-            zmin = min(zmin, min(tmp))
-            data.append(tmp)
-            tmp = fields[6:]
-            datetimes.append(current)
-        prev = current
-        freq = fields[3]
-    if len(data) == 0 and len(tmp) == 0:
+        ts = '%sT%s' % (fields[0], fields[1])
+        freqs = frange(int(fields[2]), int(fields[3]), float(fields[4]))
+        values = fields[6:6+len(freqs)]
+        if ts not in od:
+            od[ts] = []
+        for i in range(len(freqs)):
+            od[ts].append((freqs[i], values[i]))
+    data = []
+    datetimes = list(od.keys())
+    count = 0
+    for ts, v in od.items():
+        w = sorted(v, key=lambda x:x[0])
+        x = [x for x,z in w]
+        z = floatify([z for x,z in w])
+        xmin = min(xmin, x[0])
+        xmax = max(xmax, x[-1])
+        zmin = min(zmin, min(z))
+        zmax = max(zmax, max(z))
+        count = max(count, len(x))
+        #od[ts] = (x, z)
+        #if not args.interpolate:
+        #    data.append(z)
+        data.append(z)
+    step = (xmax-xmin)/count
+    #if args.interpolate:
+    #    # linear interpolation to get data evenly spaced
+    #    print_quiet('   interpolation', args.quiet)
+    #    for ts, v in od.items():
+    #        intp = interpolate(v[0], v[1], xmin, xmax, step)
+    #        data.append(intp[1])
+
+    if len(data) == 0:
         print_error('Error: we ended up with an empty data set !?')
         sys.exit(-1)
-
-    # last line
-    tmp = floatify(tmp)
-    zmax = max(zmax, max(tmp))
-    zmin = min(zmin, min(tmp))
-    data.append(tmp)
-    datetimes.append(current)
 
     if args.dbmin is not None and (args.dbmin > zmax or args.dbmax < zmin):
         print_error('Error: dbmin should be less than max value and/or dbmax should be greater than min value')
@@ -375,6 +409,7 @@ def main():
     parser.add_argument('--inside', action='store_true', default=False, help='Draw tick label inside plot')
     parser.add_argument('--force', action='store_true', default=False, help='Force overwrite of existing output file')
     parser.add_argument('--fontsize', type=int, default=4, help="Font size in points (default=4)")
+    #parser.add_argument('--interpolate', action='store_true', default=False, help="Interpolate data to get evenly spaced value")
     parser.add_argument('--no-margin', action='store_true', default=False, help="Don't draw any margin around the plot")
     parser.add_argument('-o', '--output', help='Explicit name for the output file')
     parser.add_argument('-q', '--quiet', action='store_true', default=False, help='no verbose output')
