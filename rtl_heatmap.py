@@ -34,17 +34,6 @@ def print_quiet(s, quiet):
 def print_error(s):
     print(s, file=sys.stderr)
 
-def read_data(f_name, quiet):
-    print_quiet(':: reading file %s' % f_name, quiet)
-    if f_name.endswith('.gz'):
-        f_open = lambda x: gzip.open(x, 'rt')
-    else:
-        f_open = lambda x: open(x, 'r')
-    f = f_open(f_name)
-    lines = f.readlines()
-    f.close()
-    return lines
-
 def is_inside(b1, b2, dir):
     if dir == 'x':
         return b1.x1 <= b2.xmax and b1.x0 >= b2.xmin
@@ -156,38 +145,45 @@ def frange(start, end, step):
         x += step
     return res
 
-def plot_heatmap(lines, f_name, args):
-    xmin = 10**10
-    xmax = 0
-    zmin = 100
-    zmax = -100
-    print_quiet(':: processing data', args.quiet)
+def plot_heatmap(f_name, args):
+    print_quiet(':: reading file %s' % args.input, args.quiet)
+    if args.input.endswith('.gz'):
+        f_open = lambda x: gzip.open(x, 'rt')
+    else:
+        f_open = lambda x: open(x, 'r')
 
     # gather frequency values for each timestamp
     od = OrderedDict()
-    for i,line in enumerate(lines):
-        fields = [f.strip() for f in line.split(',')]
-        ts = '%sT%s' % (fields[0], fields[1])
-        freqs = frange(int(fields[2]), int(fields[3]), float(fields[4]))
-        values = fields[6:6+len(freqs)]
-        if ts not in od:
-            od[ts] = []
-        for i in range(len(freqs)):
-            od[ts].append((freqs[i], values[i]))
+    with f_open(args.input) as f:
+        for line in f:
+            fields = [g.strip() for g in line.split(',')]
+            ts = '%sT%s' % (fields[0], fields[1])
+            freqs = frange(int(fields[2]), int(fields[3]), float(fields[4]))
+            values = fields[6:6+len(freqs)]
+            if ts not in od:
+                od[ts] = []
+            for i in range(len(freqs)):
+                od[ts].append((freqs[i], values[i]))
     datetimes = list(od.keys())
 
+    print_quiet(':: processing data', args.quiet)
     # truncate data outside of time window if needed
-    start = datetimes[0]
-    end = datetimes[-1]
-    if args.start is not None:
-        start = args.start
-    if args.end is not None:
-        end = args.end
-    od = {k:v for k,v in od.items() if k >= start and k <= end} # should keep insertion order
+    if args.start is not None or args.end is not None:
+        start = datetimes[0]
+        end = datetimes[-1]
+        if args.start is not None:
+            start = args.start
+        if args.end is not None:
+            end = args.end
+        od = {k:v for k,v in od.items() if k >= start and k <= end} # should keep insertion order
 
     # create data and stats
     datetimes = list(od.keys())
     data = []
+    xmin = 10**10
+    xmax = 0
+    zmin = 100
+    zmax = -100
     count = 0
     for ts, v in od.items():
         w = sorted(v, key=lambda x:x[0])
@@ -199,6 +195,7 @@ def plot_heatmap(lines, f_name, args):
         zmax = max(zmax, max(z))
         count = max(count, len(x))
         data.append(z)
+    del od
     step = (xmax-xmin)/count
 
     if len(data) == 0:
@@ -451,8 +448,7 @@ GPL licensed''' % VERSION)
         print_error('Abort: file %s already exits. Use --force to overwrite.' % output)
         sys.exit(-1)
 
-    lines = read_data(args.input, args.quiet)
-    plot_heatmap(lines, output, args)
+    plot_heatmap(output, args)
 
 if __name__ == '__main__':
     try:
