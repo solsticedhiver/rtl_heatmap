@@ -282,9 +282,9 @@ def plot_heatmap(lines, f_name, args):
 
     # show lines matching major ticks
     if args.xlines:
-        ax.grid(True, axis='x', which='major', color='white', linewidth=0.5, linestyle='-.')
+        ax.grid(True, axis='x', which='major', color='white', linewidth=0.5, linestyle='-.', zorder=10, alpha=0.3)
     if args.ylines:
-        ax.grid(True, axis='y', which='major', color='white', linewidth=0.5, linestyle='-.')
+        ax.grid(True, axis='y', which='major', color='white', linewidth=0.5, linestyle='-.', zorder=10, alpha=0.3)
 
     xlength = len(data[0])
     # add the title
@@ -316,9 +316,9 @@ values from %s dB to %s dB''' % (datetimes[0].replace('T', ' '), datetimes[-1].r
     # draw tick label inside plot in white
     if args.inside:
         ax.tick_params(axis='x', direction='in', which='both', colors='white', width=0.5,
-            labelsize=args.fontsize, pad=-8, zorder=1000)
+            labelsize=args.fontsize, pad=-8, zorder=100)
         ax.tick_params(axis='y', direction='in', which='both', colors='white', width=0.5,
-            labelsize=args.fontsize, pad=-16-(25 if si == 0 else 0), zorder=1000)
+            labelsize=args.fontsize, pad=-16-(25 if si == 0 else 0), zorder=100)
         # remove label outside of plot
         fig.canvas.draw()
         pos = ax.get_window_extent()
