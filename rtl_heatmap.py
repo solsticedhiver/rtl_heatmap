@@ -7,6 +7,7 @@ import math
 import os.path
 import argparse
 from collections import OrderedDict
+import numpy
 try:
     import matplotlib.pyplot as plt
     import matplotlib.ticker as ticker
@@ -158,12 +159,12 @@ def plot_heatmap(f_name, args):
         for line in f:
             fields = [g.strip() for g in line.split(',')]
             ts = '%sT%s' % (fields[0], fields[1])
-            freqs = frange(int(fields[2]), int(fields[3]), float(fields[4]))
-            values = floatify(fields[6:6+len(freqs)])
+            freqs = numpy.array(frange(int(fields[2]), int(fields[3]), float(fields[4])))
+            values = numpy.array(floatify(fields[6:6+len(freqs)]))
             if ts not in od:
-                od[ts] = []
-            for i in range(len(freqs)):
-                od[ts].append((freqs[i], values[i]))
+                od[ts] = {'freqs': numpy.array([]), 'values': numpy.array([])}
+            od[ts]['freqs'] = numpy.append(od[ts]['freqs'], freqs)
+            od[ts]['values'] = numpy.append(od[ts]['values'], values)
 
     print_quiet(':: processing data', args.quiet)
     # truncate data outside of time window if needed
@@ -179,21 +180,26 @@ def plot_heatmap(f_name, args):
 
     # create data and stats
     datetimes = list(od.keys())
-    data = []
+    data = None
     xmin = 10**10
     xmax = 0
     zmin = 100
     zmax = -100
     count = 0
     for ts, v in od.items():
-        w = sorted(v, key=lambda x:x[0])
-        z = [z for _,z in w]
+        w = numpy.column_stack((v['freqs'], v['values']))
+        ind = numpy.argsort(w[:,0])
+        w = w[ind]
+        z = numpy.array([z for _,z in w])
         xmin = min(xmin, w[0][0])
         xmax = max(xmax, w[-1][0])
         zmin = min(zmin, min(z))
         zmax = max(zmax, max(z))
         count = max(count, len(w))
-        data.append(z)
+        if data is None:
+            data = numpy.array(z)
+        else:
+            data = numpy.vstack((data, z))
     del od
     step = (xmax-xmin)/count
 
