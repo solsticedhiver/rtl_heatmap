@@ -186,6 +186,7 @@ def plot_heatmap(f_name, args):
     zmin = 100
     zmax = -100
     count = 0
+    errors = 0
     for ts, v in od.items():
         w = numpy.column_stack((v['freqs'], v['values']))
         ind = numpy.argsort(w[:,0])
@@ -199,7 +200,12 @@ def plot_heatmap(f_name, args):
         if data is None:
             data = numpy.array(z)
         else:
-            data = numpy.vstack((data, z))
+            try:
+                data = numpy.vstack((data, z))
+            except ValueError as ve:
+                errors += 1
+    if errors > 0:
+        print_error(f'Skipped {errors} lines of data')
     del od
     step = (xmax-xmin)/count
 
