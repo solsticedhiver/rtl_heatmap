@@ -5,16 +5,16 @@ Instead of reinventing the wheel, let's use *matplotlib* graphic capability to p
 the data gathered by rtl_power. All *matplotlib* colormaps are available and also the infamous 'charolastra' one (twilight+ colormaps only in matplotlib 3.x and above).
 
     $ ./rtl_heatmap.py -h
+
     usage: rtl_heatmap.py [-h] [--dbmin DBMIN] [--dbmax DBMAX] [-c COLORMAP]
                           [--colorbar] [--dpi DPI] [--end END] [-i INPUT]
-                          [-f FORMAT] [--inside] [--force] [--fontsize FONTSIZE]
-                          [--no-margin] [-o OUTPUT] [-q] [-s] [--start START]
-                          [--sort] [--summary] [--title TITLE] [-v]
-                          [--xticks XTICKS] [--yticks YTICKS] [--xlines]
-                          [--ylines]
-
+                          [-f FORMAT] [--inside] [--force] [--no-margin]
+                          [-o OUTPUT] [-q] [-s] [--start START] [--summary]
+                          [--title TITLE] [-v] [--xticks XTICKS] [--yticks YTICKS]
+                          [--xlines] [--ylines]
+    
     Yet another heatmap generator for rtl_power .csv file
-
+    
     optional arguments:
       -h, --help            show this help message and exit
       --dbmin DBMIN         Minimum value to consider for colormap normalization
@@ -32,7 +32,6 @@ the data gathered by rtl_power. All *matplotlib* colormaps are available and als
                             Format of the output image file
       --inside              Draw tick label inside plot
       --force               Force overwrite of existing output file
-      --fontsize FONTSIZE   Font size in points (default=4)
       --no-margin           Don't draw any margin around the plot
       -o OUTPUT, --output OUTPUT
                             Explicit name for the output file
@@ -40,7 +39,6 @@ the data gathered by rtl_power. All *matplotlib* colormaps are available and als
       -s, --show            Show pyplot window instead of outputting an image
       --start START         Start time to use; everything before that is ignored;
                             expected format YYY-mm-ddTHH[:MM[:SS]]
-      --sort                Sort csv file data
       --summary             Draw a summary on plot
       --title TITLE         Add a title to the plot
       -v, --version         Print version and exit

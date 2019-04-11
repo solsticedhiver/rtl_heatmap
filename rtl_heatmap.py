@@ -290,24 +290,24 @@ def plot_heatmap(f_name, args):
 
     # show lines matching major ticks
     if args.xlines:
-        ax.grid(True, axis='x', which='major', color='white', linewidth=0.5, linestyle='-.', zorder=10, alpha=0.3)
+        ax.grid(True, axis='x', which='major', color='white', linewidth=1, linestyle='-.', zorder=10, alpha=0.5)
     if args.ylines:
-        ax.grid(True, axis='y', which='major', color='white', linewidth=0.5, linestyle='-.', zorder=10, alpha=0.3)
+        ax.grid(True, axis='y', which='major', color='white', linewidth=1, linestyle='-.', zorder=10, alpha=0.5)
 
     xlength = len(data[0])
     # add the title
     if args.title:
         if args.inside:
-            ax.text(xlength/2, 20, args.title, fontsize=args.fontsize+2, fontweight='demibold', color='white', horizontalalignment='center', verticalalignment='top')
+            ax.text(xlength/2, 20, args.title, fontsize='xx-large', fontstretch='expanded', fontweight='demibold', color='white', horizontalalignment='center', verticalalignment='top')
         else:
-            ax.text(xlength/2, -13, args.title, fontsize=args.fontsize+2, fontweight='demibold', horizontalalignment='center', verticalalignment='bottom')
+            ax.text(xlength/2, -13, args.title, fontsize='xx-large', fontstretch='expanded', fontweight='demibold', horizontalalignment='center', verticalalignment='bottom')
     # add a summary
     if args.summary:
         summary = '''started at %s
 ended at %s
 from %.2f MHz to %.2f MHz
 values from %s dB to %s dB''' % (datetimes[0].replace('T', ' '), datetimes[-1].replace('T', ' '), xmin/MHz, xmax/MHz, zmin, zmax)
-        ax.text(xlength-xlength/250, 20, summary, fontsize=args.fontsize, color='white', horizontalalignment='right', verticalalignment='top')
+        ax.text(xlength-xlength/250, 20, summary, fontsize='large', color='white', horizontalalignment='right', verticalalignment='top')
 
     # redefine tick positions
     fi = find_freq_index(xmin, xmax, step, txminor)
@@ -320,13 +320,13 @@ values from %s dB to %s dB''' % (datetimes[0].replace('T', ' '), datetimes[-1].r
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(showfreq))
     ax.yaxis.set_major_formatter(ticker.FuncFormatter(showdatetime))
 
-    ax.tick_params(labelsize=args.fontsize, width=0.5, which='both')
+    ax.tick_params(labelsize='medium', width=0.5, which='both')
     # draw tick label inside plot in white
     if args.inside:
-        ax.tick_params(axis='x', direction='in', which='both', colors='white', width=0.5,
-            labelsize=args.fontsize, pad=-8, zorder=100)
-        ax.tick_params(axis='y', direction='in', which='both', colors='white', width=0.5,
-            labelsize=args.fontsize, pad=-16-(25 if si == 0 else 0), zorder=100)
+        ax.tick_params(axis='x', direction='in', which='both', colors='white',
+            labelsize='medium', pad=-15, zorder=100)
+        ax.tick_params(axis='y', direction='in', which='both', colors='white',
+            labelsize='medium', pad=-35-(60 if si == 0 else 0), zorder=100)
         # remove label outside of plot
         fig.canvas.draw()
         pos = ax.get_window_extent()
@@ -339,7 +339,7 @@ values from %s dB to %s dB''' % (datetimes[0].replace('T', ' '), datetimes[-1].r
         cax = divider.append_axes('right', size=0.3, pad=0.1)
         cb = fig.colorbar(im, cax=cax)
         if args.inside:
-            cb.ax.tick_params(axis='y', direction='in', colors='white', labelsize=args.fontsize, pad=-15)
+            cb.ax.tick_params(axis='y', direction='in', colors='white', labelsize='medium', pad=-20)
         #cb.ax.invert_yaxis() # TODO: fix the missing tick/ticklabel
 
     if args.show:
@@ -353,9 +353,11 @@ values from %s dB to %s dB''' % (datetimes[0].replace('T', ' '), datetimes[-1].r
             size = fig.get_size_inches()
             height, width = size[1], size[0]
             pad_inches = None
-            width = size[0]
-        height = height*3
-        width = width*3
+        thi = len(data)/args.dpi # targeted height in inches (height in pixel/dpi)
+        scale = thi/height
+        height = height*scale
+        width = width*scale
+        fig.tight_layout(pad=0)
         fig.set_size_inches(width, height)
         fig.savefig(f_name, dpi=args.dpi, bbox_inches='tight', pad_inches=pad_inches)
         print_quiet(':: saved to %s' % f_name, args.quiet)
@@ -366,13 +368,12 @@ def main():
     parser.add_argument('--dbmax', type=float, help='Maximum value to consider for colormap normalization')
     parser.add_argument('-c', '--colormap', default='charolastra', help='Specify the colormap to use (use "list" to get a list of available colormaps)')
     parser.add_argument('--colorbar', default=False, action='store_true', help='Add a colorbar to the plot')
-    parser.add_argument('--dpi', default=300, type=int, help='Specify dpi of output image')
+    parser.add_argument('--dpi', default=72, type=int, help='Specify dpi of output image')
     parser.add_argument('--end', help='End time to use; everything after that is ignored; expected format YYY-mm-ddTHH[:MM[:SS]]')
     parser.add_argument('-i', '--input', help='Input csv filename')
     parser.add_argument('-f', '--format', help='Format of the output image file')
     parser.add_argument('--inside', action='store_true', default=False, help='Draw tick label inside plot')
     parser.add_argument('--force', action='store_true', default=False, help='Force overwrite of existing output file')
-    parser.add_argument('--fontsize', type=int, default=4, help="Font size in points (default=4)")
     parser.add_argument('--no-margin', action='store_true', default=False, help="Don't draw any margin around the plot")
     parser.add_argument('-o', '--output', help='Explicit name for the output file')
     parser.add_argument('-q', '--quiet', action='store_true', default=False, help='no verbose output')
