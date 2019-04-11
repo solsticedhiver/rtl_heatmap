@@ -220,7 +220,7 @@ def plot_heatmap(f_name, args):
     print_quiet('Starting at %s and ending at %s\n  from %sHz to %sHz with values from %sdB to %sdB' % (datetimes[0], datetimes[-1], xmin, xmax, zmin, zmax), args.quiet)
 
     print_quiet(':: rendering', args.quiet)
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(constrained_layout=0)
 
     start = time.mktime(time.strptime(datetimes[0], '%Y-%m-%dT%H:%M:%S'))
     end = time.mktime(time.strptime(datetimes[-1], '%Y-%m-%dT%H:%M:%S'))
@@ -300,7 +300,7 @@ def plot_heatmap(f_name, args):
         if args.inside:
             ax.text(xlength/2, 20, args.title, fontsize='xx-large', fontstretch='expanded', fontweight='demibold', color='white', horizontalalignment='center', verticalalignment='top')
         else:
-            ax.text(xlength/2, -13, args.title, fontsize='xx-large', fontstretch='expanded', fontweight='demibold', horizontalalignment='center', verticalalignment='bottom')
+            ax.set_title(args.title, fontsize='xx-large', fontstretch='expanded', fontweight='demibold')
     # add a summary
     if args.summary:
         summary = '''started at %s
@@ -345,19 +345,15 @@ values from %s dB to %s dB''' % (datetimes[0].replace('T', ' '), datetimes[-1].r
     if args.show:
         plt.show()
     else:
+        fig.canvas.draw()
+        size = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+        thi = len(data)/args.dpi # targeted height in inches (height in pixel/dpi)
+        scale = thi/size.height
+        width, height = fig.get_size_inches()*scale
         if args.no_margin:
-            size = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
-            height, width = size.height, size.width
             pad_inches = 0
         else:
-            size = fig.get_size_inches()
-            height, width = size[1], size[0]
             pad_inches = None
-        thi = len(data)/args.dpi # targeted height in inches (height in pixel/dpi)
-        scale = thi/height
-        height = height*scale
-        width = width*scale
-        fig.tight_layout(pad=0)
         fig.set_size_inches(width, height)
         fig.savefig(f_name, dpi=args.dpi, bbox_inches='tight', pad_inches=pad_inches)
         print_quiet(':: saved to %s' % f_name, args.quiet)
