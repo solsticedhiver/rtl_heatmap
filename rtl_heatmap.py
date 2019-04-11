@@ -162,9 +162,8 @@ def plot_heatmap(f_name, args):
             freqs = numpy.array(frange(int(fields[2]), int(fields[3]), float(fields[4])))
             values = numpy.array(floatify(fields[6:6+len(freqs)]))
             if ts not in od:
-                od[ts] = {'freqs': numpy.array([]), 'values': numpy.array([])}
-            od[ts]['freqs'] = numpy.append(od[ts]['freqs'], freqs)
-            od[ts]['values'] = numpy.append(od[ts]['values'], values)
+                od[ts] = []
+            od[ts].append(((int(fields[2]), int(fields[3]), float(fields[4])), values))
 
     print_quiet(':: processing data', args.quiet)
     # truncate data outside of time window if needed
@@ -188,17 +187,15 @@ def plot_heatmap(f_name, args):
     count = 0
     errors = 0
     for ts, v in od.items():
-        w = numpy.column_stack((v['freqs'], v['values']))
-        ind = numpy.argsort(w[:,0])
-        w = w[ind]
-        z = numpy.array([z for _,z in w])
-        xmin = min(xmin, w[0][0])
-        xmax = max(xmax, w[-1][0])
+        v.sort(key=lambda x:x[0][0])
+        z = numpy.concatenate([z for _,z in v])
+        xmin = min(xmin, v[0][0][0])
+        xmax = max(xmax, v[-1][0][1])
         zmin = min(zmin, min(z))
         zmax = max(zmax, max(z))
-        count = max(count, len(w))
+        count = max(count, len(z))
         if data is None:
-            data = numpy.array(z)
+            data = z
         else:
             try:
                 data = numpy.vstack((data, z))
