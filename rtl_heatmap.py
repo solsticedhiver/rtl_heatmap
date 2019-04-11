@@ -129,14 +129,10 @@ def find_freq_index(xmin, xmax, step, modulo):
 
 def remove_ticklabel(ax, axis, bbox):
     labels = getattr(ax, 'get_%sticklabels' % axis)()
-    toberemoved = []
-    for i,label in enumerate(labels):
-        if not is_inside(label.get_window_extent(), bbox, axis):
-            toberemoved.append(i)
-    ticks = list(getattr(ax, 'get_%sticks' % axis)())
-    for i in reversed(toberemoved):
-        del ticks[i]
-    getattr(ax, 'set_%sticks' % axis)(ticks)
+    for i in range(len(labels)):
+        if not is_inside(labels[i].get_window_extent(), bbox, axis):
+            labels[i].set_text('')
+    getattr(ax, 'set_%sticklabels' % axis)(labels)
 
 def frange(start, end, step):
     res = []
