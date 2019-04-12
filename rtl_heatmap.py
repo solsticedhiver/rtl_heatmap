@@ -269,7 +269,7 @@ def plot_heatmap(f_name, args):
 
     if txmajor < MHz:
         def showfreq(tick, pos):
-            return '%.1fMHz' % freqs[tick]/(1000*1000)
+            return '%.1fMHz' % (freqs[tick]/(1000*1000),)
     else:
         def showfreq(tick, pos):
             return '%dMHz' % int(round(freqs[tick]/(1000*1000)))
