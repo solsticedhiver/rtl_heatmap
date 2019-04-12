@@ -12,9 +12,9 @@ the data gathered by rtl_power. All *matplotlib* colormaps are available and als
                           [-o OUTPUT] [-q] [-s] [--start START] [--summary]
                           [--title TITLE] [-v] [--xticks XTICKS] [--yticks YTICKS]
                           [--xlines] [--ylines]
-    
+
     Yet another heatmap generator for rtl_power .csv file
-    
+
     optional arguments:
       -h, --help            show this help message and exit
       --dbmin DBMIN         Minimum value to consider for colormap normalization
@@ -48,16 +48,21 @@ the data gathered by rtl_power. All *matplotlib* colormaps are available and als
       --ylines              Show lines matching major ytick labels
 
 # Examples
-Example of a generated heatmap, using defaults, 863MHz to 870MHz for a day:
+Example of a generated heatmap, using defaults, scan from 100 MHz to 1100 MHz for 12 hours. Following image has been resized; original image is 10396x1421 at 72 dpi.
 
-![SRD860](img/SRD860.png)
+![fullscan/defaults](img/fullscan-d.png)
+
+## Title, summary, ylines, colorbar
+You can add a title, a (auto-generated) summary, ylines matching the yticks, a legend in the form of a colorbar, and specify the spacing of yticks. For example, using `--colorbar --ylines --title 'Full scan 100 MHz-1100 MHz/12h' --summary`
+
+![zoomed in details](img/fullscan-details.png)
+
+At the center is the resized image, and around it, are details at the original resolution. At the top, the title, at its right, the summary, at the right the colorbar, at the bottom a xtick label, at the left ytick labels.
 
 ## No margin
-You can remove margin around the plot and draw label inside it. You can add a title. And a summary.
+You can also remove margin around the plot and draw the labels inside it. Using `-c viridis --no-margin --inside --ylines --yticks 1h`
 
-Using `-c viridis --no-margin --inside --ylines --yticks 1h --title "Full spectrum scan 25MHz-1500MHz/8h"`
-
-![Full spectrum scan 25MHz-1500MHz](img/fullscan.png)
+![Full spectrum scan](img/fullscan-vniyy.png)
 
 ## Normalization
 If you expect the same color scale for different data set, you need to specify a normalization range by using --dbmin and --dbmax.
