@@ -109,17 +109,11 @@ def find_time_index(datetimes, multiple):
         current += multiple*60
     return indexes
 
-def find_freq_index(xmin, xmax, step, modulo):
-    freqs = [xmin]
-    f = xmin
-    while f < xmax:
-        f += step
-        freqs.append(f)
-    freqs.append(f)
+def find_freq_index(freqs, modulo):
     count = len(freqs)
     indexes = []
-    fc = xmin
-    while fc < xmax:
+    fc = freqs[0]
+    while fc < freqs[-1]:
         diff = [(abs(fc-freqs[i]), i) for i in range(count)]
         fmin = min([x for x,_ in diff])
         indx = [i for x,i in diff if x == fmin][0]
@@ -180,8 +174,13 @@ def plot_heatmap(f_name, args):
     xmax = 0
     zmin = 100
     zmax = -100
-    count = 0
     errors = 0
+
+    fid = sorted([x for x,_ in list(od.values())[0]], key=lambda x:x[0])
+    freqs = []
+    for x in fid:
+        freqs.extend(frange(x[0], x[1], x[2]))
+
     for ts, v in od.items():
         v.sort(key=lambda x:x[0][0])
         z = numpy.concatenate([z for _,z in v])
@@ -189,7 +188,6 @@ def plot_heatmap(f_name, args):
         xmax = max(xmax, v[-1][0][1])
         zmin = min(zmin, min(z))
         zmax = max(zmax, max(z))
-        count = max(count, len(z))
         if data is None:
             data = z
         else:
@@ -200,17 +198,21 @@ def plot_heatmap(f_name, args):
     if errors > 0:
         print_error(f'Skipped {errors} lines of data')
     del od
-    step = (xmax-xmin)/count
+    xlength = len(data[0])
+    assert xlength == len(freqs)
+    step = (xmax-xmin)/xlength
 
     if len(data) == 0:
         print_error('Error: we ended up with an empty data set !?')
         sys.exit(-1)
 
+    print_quiet(f'  gathered data matrix {xlength}x{len(data)}', args.quiet)
+
     if args.dbmin is not None and (args.dbmin > zmax or args.dbmax < zmin):
         print_error('Error: dbmin should be less than max value and/or dbmax should be greater than min value')
         sys.exit(-1)
 
-    print_quiet('Starting at %s and ending at %s\n  from %sHz to %sHz with values from %sdB to %sdB' % (datetimes[0], datetimes[-1], xmin, xmax, zmin, zmax), args.quiet)
+    print_quiet('  starting at %s and ending at %s\n  from %sHz to %sHz with values from %sdB to %sdB' % (datetimes[0], datetimes[-1], xmin, xmax, zmin, zmax), args.quiet)
 
     print_quiet(':: rendering', args.quiet)
     fig, ax = plt.subplots(constrained_layout=0)
@@ -267,10 +269,10 @@ def plot_heatmap(f_name, args):
 
     if txmajor < MHz:
         def showfreq(tick, pos):
-            return '%.1fMHz' % ((xmin+float(tick)*float(step))/(1000*1000),)
+            return '%.1fMHz' % freqs[tick]/(1000*1000)
     else:
         def showfreq(tick, pos):
-            return '%dMHz' % int(round(((xmin+float(tick)*float(step))/(1000*1000))))
+            return '%dMHz' % int(round(freqs[tick]/(1000*1000)))
 
     if args.colormap == 'charolastra':
         args.colormap = ListedColormap(charolastra_palette())
@@ -287,7 +289,6 @@ def plot_heatmap(f_name, args):
     if args.ylines:
         ax.grid(True, axis='y', which='major', color='white', linewidth=1, linestyle='-.', zorder=10, alpha=0.5)
 
-    xlength = len(data[0])
     # add the title
     if args.title:
         if args.inside:
@@ -303,7 +304,7 @@ values from %s dB to %s dB''' % (datetimes[0].replace('T', ' '), datetimes[-1].r
         ax.text(xlength-xlength/250, 20, summary, fontsize='large', color='white', horizontalalignment='right', verticalalignment='top')
 
     # redefine tick positions
-    fi = find_freq_index(xmin, xmax, step, txminor)
+    fi = find_freq_index(freqs, txminor)
     ax.set_xticks(fi[::10])
     ax.set_xticks(fi, minor=True)
     fi = find_time_index(datetimes, tyminor)
