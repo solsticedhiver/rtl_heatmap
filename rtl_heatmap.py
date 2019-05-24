@@ -212,7 +212,7 @@ def plot_heatmap(f_name, args):
         print_error('Error: dbmin should be less than max value and/or dbmax should be greater than min value')
         sys.exit(-1)
 
-    print_quiet('  starting at %s and ending at %s\n  from %sHz to %sHz with values from %sdB to %sdB' % (datetimes[0], datetimes[-1], xmin, xmax, zmin, zmax), args.quiet)
+    print_quiet(f'  starting at {datetimes[0]} and ending at {datetimes[-1]}\n  from {xmin/MHz:4.2f}MHz to {xmax/MHz:4.2f}MHz values from {zmin:-2.1f}dB to {zmax:-2.1f}dB', args.quiet)
 
     print_quiet(':: rendering', args.quiet)
     fig, ax = plt.subplots(constrained_layout=0)
@@ -269,16 +269,16 @@ def plot_heatmap(f_name, args):
 
     if txmajor < MHz:
         def showfreq(tick, pos):
-            return '%.1fMHz' % (freqs[tick]/(1000*1000),)
+            return f'{freqs[tick]/MHz:.1f}MHz'
     else:
         def showfreq(tick, pos):
-            return '%dMHz' % int(round(freqs[tick]/(1000*1000)))
+            return f'{int(round(freqs[tick]/MHz)):d}MHz'
 
     if args.colormap == 'charolastra':
         args.colormap = ListedColormap(charolastra_palette())
 
     if args.dbmin is not None:
-        print_quiet('Normalizing data set to use %ddb to %ddb range' % (args.dbmin, args.dbmax), args.quiet)
+        print_quiet(f'Normalizing data set to use {args.dbmin}dB to {args.dbmax}dB range', args.quiet)
         im = ax.imshow(data, cmap=args.colormap, aspect='equal', vmin=args.dbmin, vmax=args.dbmax)
     else:
         im = ax.imshow(data, cmap=args.colormap, aspect='equal')
@@ -297,10 +297,10 @@ def plot_heatmap(f_name, args):
             ax.set_title(args.title, fontsize='xx-large', fontstretch='expanded', fontweight='demibold')
     # add a summary
     if args.summary:
-        summary = '''started at %s
-ended at %s
-from %.2f MHz to %.2f MHz
-values from %s dB to %s dB''' % (datetimes[0].replace('T', ' '), datetimes[-1].replace('T', ' '), xmin/MHz, xmax/MHz, zmin, zmax)
+        summary = f'''started at {datetimes[0].replace('T', ' ')}
+ended at {datetimes[-1].replace('T', ' ')}
+from {xmin/MHz:.2f} MHz to {xmax/MHz:.2f} MHz
+values from {zmin} dB to {zmax} dB'''
         ax.text(xlength-xlength/250, 20, summary, fontsize='large', color='white', horizontalalignment='right', verticalalignment='top')
 
     # redefine tick positions
@@ -379,15 +379,15 @@ def main():
     args = parser.parse_args()
 
     if args.version:
-        print('''rtl_heatmap %s
+        print(f'''rtl_heatmap {VERSION}
 Copyright ©2019 solstice d'Hiver
-GPL licensed''' % VERSION)
+GPL licensed''')
         sys.exit(1)
 
     if args.colormap == 'list':
         print('Available colormaps are:')
         for k,v in COLORMAPS.items():
-            print('  - %s:' % k)
+            print(f'  - {k}:')
             print_with_columns(v, 6, prefix='    ')
             print()
         sys.exit(1)
@@ -396,13 +396,13 @@ GPL licensed''' % VERSION)
         print_error('Error: -i/--input is required')
         sys.exit(-1)
     if not os.path.isfile(args.input):
-        print_error('Error: there is no such file as %s' % args.input)
+        print_error(f'Error: there is no such file as {args.input}')
         sys.exit(-1)
 
     if args.output and args.format:
         ext = (args.output[args.output.rindex('.')+1:]).lower()
         if ext != args.format.lower():
-            print_error('Error: conflicting format and extension. Found "%s" extension and "%s" format' % (ext, args.format.lower()))
+            print_error(f'Error: conflicting format and extension. Found "{ext}" extension and "{args.format.lower()}" format')
             sys.exit(-1)
 
     if (args.dbmin is not None and args.dbmax is None) or (args.dbmax is not None and args.dbmin is None):
@@ -410,7 +410,7 @@ GPL licensed''' % VERSION)
         sys.exit(-1)
 
     if args.colormap != 'charolastra' and args.colormap not in plt.colormaps():
-        print_error('Error: colormap "%s" not found. Use "list" to see the available colormaps' % args.colormap)
+        print_error(f'Error: colormap "{args.colormap}" not found. Use "list" to see the available colormaps')
         sys.exit(-1)
 
     if args.xticks is not None:
@@ -447,7 +447,7 @@ GPL licensed''' % VERSION)
     else:
         output = args.output
     if os.path.isfile(output) and not args.force:
-        print_error('Abort: file %s already exits. Use --force to overwrite.' % output)
+        print_error(f'Abort: file {output} already exits. Use --force to overwrite.')
         sys.exit(-1)
 
     plot_heatmap(output, args)
