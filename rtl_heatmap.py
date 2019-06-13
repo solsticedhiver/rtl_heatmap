@@ -285,9 +285,12 @@ def plot_heatmap(f_name, args):
 
     # show lines matching major ticks
     if args.xlines:
-        ax.grid(True, axis='x', which='major', color='white', linewidth=1, linestyle='-.', zorder=10, alpha=0.5)
+        axis = 'x'
     if args.ylines:
-        ax.grid(True, axis='y', which='major', color='white', linewidth=1, linestyle='-.', zorder=10, alpha=0.5)
+        axis = 'y'
+    if args.xlines and args.ylines:
+        axis = 'both'
+    ax.grid(True, axis=axis, which='major', color='white', linewidth=1, linestyle='-.', zorder=10, alpha=0.5)
 
     # add the title
     if args.title:
