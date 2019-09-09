@@ -99,7 +99,13 @@ def find_time_index(datetimes, multiple):
     # find index that matches the multiple in minute
     indexes = []
     done = []
-    ts = [time.mktime(time.strptime(dt[:19], '%Y-%m-%dT%H:%M:%S')) for dt in datetimes]
+    ts = []
+    for dt in datetimes:
+        try:
+            t = time.strptime(dt[:19], '%Y-%m-%dT%H:%M:%S')
+            ts.append(time.mktime(t))
+        except ValueError:
+            continue
     current = min(ts)
     while current < max(ts):
         diff = [(abs(current-ts[i]), i) for i in range(len(ts))]
