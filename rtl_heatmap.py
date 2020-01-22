@@ -154,7 +154,10 @@ def plot_heatmap(f_name, args):
     with f_open(args.input) as f:
         for line in f:
             fields = [g.strip() for g in line.split(',')]
-            ts = '%sT%s' % (fields[0], fields[1])
+            try:
+                ts = '%sT%s' % (fields[0], fields[1])
+            except IndexError as i:
+                continue
             freqs = numpy.array(frange(int(fields[2]), int(fields[3]), float(fields[4])))
             values = numpy.array(floatify(fields[6:6+len(freqs)]))
             if ts not in od:
@@ -290,13 +293,15 @@ def plot_heatmap(f_name, args):
         im = ax.imshow(data, cmap=args.colormap, aspect='equal')
 
     # show lines matching major ticks
+    axis = None
     if args.xlines:
         axis = 'x'
     if args.ylines:
         axis = 'y'
     if args.xlines and args.ylines:
         axis = 'both'
-    ax.grid(True, axis=axis, which='major', color='white', linewidth=1, linestyle='-.', zorder=10, alpha=0.5)
+    if axis is not None:
+        ax.grid(True, axis=axis, which='major', color='white', linewidth=1, linestyle='-.', zorder=10, alpha=0.5)
 
     # add the title
     if args.title:
