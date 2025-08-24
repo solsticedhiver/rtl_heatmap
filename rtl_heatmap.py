@@ -127,11 +127,12 @@ def find_freq_index(freqs, modulo):
         fc += modulo
     return indexes
 
-def remove_ticklabel(ax, axis, bbox):
+def remove_ticklabel(ax, axis, bbox, renderer):
     labels = getattr(ax, 'get_%sticklabels' % axis)()
     for i in range(len(labels)):
-        if not is_inside(labels[i].get_window_extent(), bbox, axis):
+        if not is_inside(labels[i].get_tightbbox(renderer), bbox, axis):
             labels[i].set_text('')
+    labels[0].set_text('')
     getattr(ax, 'set_%sticklabels' % axis)(labels)
 
 def frange(start, end, step):
@@ -153,7 +154,7 @@ def plot_heatmap(f_name, args):
     od = OrderedDict()
     with f_open(args.input) as f:
         for line in f:
-            fields = [g.strip() for g in line.split(',')]
+            fields = [g.strip() for g in line.strip('\x00').split(',')]
             try:
                 ts = '%sT%s' % (fields[0], fields[1])
             except IndexError as i:
@@ -207,13 +208,17 @@ def plot_heatmap(f_name, args):
     if errors > 0:
         print_error(f'Skipped {errors} lines of data')
     del od
-    xlength = len(data[0])
+    if len(data) == 0:
+        print_error('Error: empty data set !?')
+        sys.exit(-1)
+    try:
+        xlength = len(data[0])
+    except TypeError:
+        print_error('Error: not enough data')
+        sys.exit(-1)
+
     assert xlength == len(freqs)
     step = (xmax-xmin)/xlength
-
-    if len(data) == 0:
-        print_error('Error: we ended up with an empty data set !?')
-        sys.exit(-1)
 
     print_quiet(f'  gathered data matrix {xlength}x{len(data)}', args.quiet)
 
@@ -289,8 +294,10 @@ def plot_heatmap(f_name, args):
     if args.dbmin is not None:
         print_quiet(f'Normalizing data set to use {args.dbmin}dB to {args.dbmax}dB range', args.quiet)
         im = ax.imshow(data, cmap=args.colormap, aspect='equal', vmin=args.dbmin, vmax=args.dbmax)
+        #im = ax.imshow(data, cmap=args.colormap, aspect='equal', vmin=args.dbmin, vmax=args.dbmax)
     else:
         im = ax.imshow(data, cmap=args.colormap, aspect='equal')
+        #im = ax.pcolormesh(data, cmap=args.colormap, aspect='equal')
 
     # show lines matching major ticks
     axis = None
@@ -337,9 +344,10 @@ values from {zmin} dB to {zmax} dB'''
             labelsize='medium', pad=-35-(60 if si == 0 else 0), zorder=100)
         # remove label outside of plot
         fig.canvas.draw()
-        pos = ax.get_window_extent()
-        remove_ticklabel(ax, 'x', pos)
-        remove_ticklabel(ax, 'y', pos)
+        renderer = fig.canvas.get_renderer()
+        bbox = ax.get_tightbbox(renderer)
+        remove_ticklabel(ax, 'x', bbox, renderer)
+        remove_ticklabel(ax, 'y', bbox, renderer)
     if args.colorbar:
         # create an axes on the right side of ax. The width of cax will be 0.3
         # inch and the padding between cax and ax will be fixed at 0.1 inch.
